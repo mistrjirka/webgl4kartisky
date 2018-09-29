@@ -1,0 +1,21 @@
+{
+  "name": "pixitest",
+  "version": "1.0.0",
+  "description": "See http://www.proofbyexample.com/typescript-pixi-webpack.html",
+  "main": "./dist/bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jiří Svítil",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "pixi.js": "^3.0.11"
+  },
+  "devDependencies": {
+    "brfs": "^1.6.1",
+    "source-map-loader": "^0.1.6",
+    "transform-loader": "^0.2.4",
+    "ts-loader": "^0.8.2",
+    "webpack": "^1.15.0"
+  }
+}
