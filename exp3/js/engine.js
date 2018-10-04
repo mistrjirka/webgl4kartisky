@@ -2,15 +2,15 @@
 //references
 /// <reference path = "lib/phaser.d.ts" />
 var KartiskyGL = /** @class */ (function () {
-    function KartiskyGL(div, rendering, toPreload, toCreate, width, height) {
+    function KartiskyGL(div, rendering, spriteLoading, toCreate, width, height) {
         if (width === void 0) { width = 1280; }
         if (height === void 0) { height = 720; }
-        this.toPreload = [];
+        this.spriteLoading = [];
         this.toCreate = [];
         var settingsForPhaser = {
             preload: this.preload,
             create: this.create,
-            toPreload: toPreload,
+            spriteLoading: spriteLoading,
             toCreate: toCreate
         };
         switch (rendering) {
@@ -27,7 +27,7 @@ var KartiskyGL = /** @class */ (function () {
     }
     KartiskyGL.prototype.preload = function () {
         var phaser = this;
-        this.toPreload.forEach(function (element) {
+        this.spriteLoading.forEach(function (element) {
             phaser.game.load.image(element.name, element.sprite);
         });
     };
@@ -37,6 +37,13 @@ var KartiskyGL = /** @class */ (function () {
             element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
             element.value.anchor.setTo(element[0], element[1]);
         });
+    };
+    KartiskyGL.prototype.loadSpirte = function (sprites, callback) {
+        sprites.forEach(function (element) {
+            this.gme.load.image(element.name, element.sprite);
+        });
+        this.game.load.start();
+        this.game.load.onLoadComplete.add(callback, this);
     };
     return KartiskyGL;
 }());
