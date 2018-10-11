@@ -38,23 +38,50 @@ var KartiskyGL = /** @class */ (function () {
             element.value.anchor.setTo(element[0], element[1]);
         });
     };
-    KartiskyGL.prototype.loadSpirte = function (sprites, callback) {
-        sprites.forEach(function (element) {
-            this.gme.load.image(element.name, element.sprite);
+    /*loadSpirte(sprites: any {
+        sprite: string,
+        name: string
+    } [], callback: any) {
+        console.log(this);
+        this.game.load.start();
+        var gameInstant = this.game;
+        this.game.load.image(sprites[0].name, sprites[0].sprite);
+        /*sprites.forEach(function (element) {
+            console.log(gameInstant);
+            Game.load.image(element.name, element.sprite);
         });
         this.game.load.start();
         this.game.load.onLoadComplete.add(callback, this);
+    }*/
+    KartiskyGL.prototype.loadSprite = function (sprites, callback) {
+        var game = this.game;
+        var loader = new Phaser.Loader(game);
+        alert("ahoj");
+        for (var i = 0; i > sprites.length; i++) {
+            loader.image(sprites.name, sprites.URL); /* loader.atlasJSONHash('anotherAtlas', '//url/to/texture', '//url/to/atlas'); */
+            loader.onLoadComplete.addOnce(onLoaded);
+            loader.start();
+            loader.onLoadComplete.add(function () {
+                console.log('everything is loaded and ready to be used');
+                callback(true);
+            });
+            loader.onFileError(callback);
+        }
     };
     return KartiskyGL;
 }());
-window.onload = function () {
-    var player = {};
-    var game = new KartiskyGL("game", "auto", [{
-            name: "ahoj",
-            sprite: "obr/ahoj.png"
-        }], [{
-            value: player,
-            name: "ahoj",
-            anchor: [0.5, 0.5]
-        }]);
-};
+//window.onload = () => {
+var player = {};
+var game = new KartiskyGL("game", "auto", [{
+        name: "ahoj",
+        URL: "obr/ahoj.png"
+    }], [{
+        value: player,
+        name: "ahoj",
+        anchor: [0.5, 0.5]
+    }]);
+game.loadSprite([{
+        URL: "obr/ahoj.png",
+        name: "nien"
+    }], alert);
+//};

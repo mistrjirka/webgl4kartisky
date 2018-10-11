@@ -9,7 +9,7 @@ class KartiskyGL {
     public game: Phaser.Game;
 
     public spriteLoading: {
-        sprite: string,
+        URL: string,
         name: string
     } [] = [];
 
@@ -21,8 +21,9 @@ class KartiskyGL {
         anchor: number[]
     } [] = [];
 
+
     constructor(div: string, rendering: string, spriteLoading: {
-        sprite: string,
+        URL: string,
         name: string
     } [], toCreate: {
         value: {
@@ -56,6 +57,7 @@ class KartiskyGL {
         this.spriteLoading.forEach(function (element) {
             phaser.game.load.image(element.name, element.sprite);
         });
+
     }
 
     create() {
@@ -66,27 +68,56 @@ class KartiskyGL {
         });
     }
 
-    loadSpirte(sprites: {
+    /*loadSpirte(sprites: any {
         sprite: string,
         name: string
-    } [], callback: () => void) {
-        sprites.forEach(function (element) {
-            this.gme.load.image(element.name, element.sprite);
+    } [], callback: any) {
+        console.log(this);
+        this.game.load.start();
+        var gameInstant = this.game;
+        this.game.load.image(sprites[0].name, sprites[0].sprite);
+        /*sprites.forEach(function (element) {
+            console.log(gameInstant);
+            Game.load.image(element.name, element.sprite);
         });
         this.game.load.start();
         this.game.load.onLoadComplete.add(callback, this);
+    }*/
+
+    loadSprite(sprites: {
+        URL: string,
+        name: string
+    } [], callback: any) {
+        var game = this.game;
+        var loader = new Phaser.Loader(game);
+        alert("ahoj");
+        for (var i = 0; i > sprites.length; i++) {
+            loader.image(sprites.name, sprites.URL); /* loader.atlasJSONHash('anotherAtlas', '//url/to/texture', '//url/to/atlas'); */
+            loader.onLoadComplete.addOnce(onLoaded);
+            loader.start();
+            loader.onLoadComplete.add(function () {
+                console.log('everything is loaded and ready to be used')
+                callback(true);
+            });
+            loader.onFileError(callback);
+        }
     }
 
 }
 
-window.onload = () => {
-    var player = {};
-    let game = new KartiskyGL("game", "auto", [{
-        name: "ahoj",
-        sprite: "obr/ahoj.png"
+//window.onload = () => {
+var player = {};
+let game = new KartiskyGL("game", "auto", [{
+    name: "ahoj",
+    URL: "obr/ahoj.png"
     }], [{
-        value: player,
-        name: "ahoj",
-        anchor: [0.5, 0.5]
+    value: player,
+    name: "ahoj",
+    anchor: [0.5, 0.5]
     }]);
-};
+
+game.loadSprite([{
+    URL: "obr/ahoj.png",
+    name: "nien"
+    }], alert);
+//};
