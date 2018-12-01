@@ -28,7 +28,7 @@ var KartiskyGL = /** @class */ (function () {
     KartiskyGL.prototype.preload = function () {
         var phaser = this;
         this.spriteLoading.forEach(function (element) {
-            phaser.game.load.image(element.name, element.sprite);
+            phaser.game.load.image(element.name, element.URL);
         });
     };
     KartiskyGL.prototype.create = function () {
@@ -56,16 +56,17 @@ var KartiskyGL = /** @class */ (function () {
     KartiskyGL.prototype.loadSprite = function (sprites, callback) {
         var game = this.game;
         var loader = new Phaser.Loader(game);
-        alert("ahoj");
-        for (var i = 0; i > sprites.length; i++) {
-            loader.image(sprites.name, sprites.URL); /* loader.atlasJSONHash('anotherAtlas', '//url/to/texture', '//url/to/atlas'); */
-            loader.onLoadComplete.addOnce(onLoaded);
+        alert(sprites.length);
+        for (var i = 0; i < sprites.length; i++) {
+            loader.image(sprites[i].name, sprites[i].URL); /* loader.atlasJSONHash('anotherAtlas', '//url/to/texture', '//url/to/atlas'); */
+            loader.onLoadComplete.addOnce(callback);
             loader.start();
             loader.onLoadComplete.add(function () {
                 console.log('everything is loaded and ready to be used');
                 callback(true);
             });
-            loader.onFileError(callback);
+            console.log(game);
+            //loader.onFileError(alert)
         }
     };
     return KartiskyGL;
@@ -80,8 +81,8 @@ var game = new KartiskyGL("game", "auto", [{
         name: "ahoj",
         anchor: [0.5, 0.5]
     }]);
-game.loadSprite([{
+setTimeout(function () { return game.loadSprite([{
         URL: "obr/ahoj.png",
         name: "nien"
-    }], alert);
+    }], alert); }, 5000);
 //};
