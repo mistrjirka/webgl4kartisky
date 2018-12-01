@@ -18,7 +18,9 @@ class KartiskyGL {
             [propName: string]: any
         },
         name: string,
-        anchor: number[]
+        anchor: number[],
+        x: number,
+        y: number
     } [] = [];
 
 
@@ -30,7 +32,9 @@ class KartiskyGL {
             [propName: string]: any
         },
         name: string,
-        anchor: number[]
+        anchor: number[],
+        x?: number,
+        y?: number
     } [], width = 1280, height = 720) {
 
         var settingsForPhaser = {
@@ -52,7 +56,7 @@ class KartiskyGL {
         }
     }
 
-    preload() {
+    private preload() {
         var phaser = this;
         this.spriteLoading.forEach(function (element) {
             phaser.game.load.image(element.name, element.URL);
@@ -60,15 +64,19 @@ class KartiskyGL {
 
     }
 
-    create() {
+    private create() {
         var phaser = this;
         this.toCreate.forEach(function (element) {
-            element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
+            if(element.x && element.y){
+                element.value = phaser.game.add.sprite(element.x, element.y, element.name);
+            }else{
+                element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
+            }
             element.value.anchor.setTo(element[0], element[1]);
         });
     }
 
-    loadSprite(sprites: {
+    public loadSprite(sprites: {
         URL: string,
         name: string
     } [], callback: any) {
@@ -88,6 +96,12 @@ class KartiskyGL {
         }
     }
 
+    public createSprite(sprites: {
+        
+        name: string
+    } []){
+        
+    }
 }
 
 //window.onload = () => {
