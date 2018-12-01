@@ -34,15 +34,20 @@ var KartiskyGL = /** @class */ (function () {
     KartiskyGL.prototype.create = function () {
         var phaser = this;
         this.toCreate.forEach(function (element) {
-            element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
+            if (element.x && element.y) {
+                element.value = phaser.game.add.sprite(element.x, element.y, element.name);
+            }
+            else {
+                element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
+            }
             element.value.anchor.setTo(element[0], element[1]);
         });
     };
     KartiskyGL.prototype.loadSprite = function (sprites, callback) {
         var game = this.game;
         var loader = new Phaser.Loader(game);
-        for (var i = 0; i < sprites.length; i++) {
-            loader.image(sprites[i].name, sprites[i].URL); /* loader.atlasJSONHash('anotherAtlas', '//url/to/texture', '//url/to/atlas'); */
+        sprites.forEach(function (element) {
+            loader.image(element.name, element.URL); /* loader.atlasJSONHash('anotherAtlas', '//url/to/texture', '//url/to/atlas'); */
             loader.onLoadComplete.addOnce(callback);
             loader.start();
             loader.onLoadComplete.add(function () {
@@ -51,22 +56,41 @@ var KartiskyGL = /** @class */ (function () {
             });
             console.log(game);
             //loader.onFileError(alert)
-        }
+        });
+    };
+    KartiskyGL.prototype.createSprite = function (sprites) {
+        var phaser = this;
+        sprites.forEach(function (element) {
+            if (element.x && element.y) {
+                element.value = phaser.game.add.sprite(element.x, element.y, element.name);
+            }
+            else {
+                element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
+            }
+            element.value.anchor.setTo(element[0], element[1]);
+        });
     };
     return KartiskyGL;
 }());
-//window.onload = () => {
-var player = {};
-var game = new KartiskyGL("game", "auto", [{
-        name: "ahoj",
-        URL: "obr/ahoj.png"
-    }], [{
+window.onload = function () {
+    var player = {};
+    var game = new KartiskyGL("game", "auto", [{
+            name: "ahoj",
+            URL: "obr/ahoj.png"
+        }], [ /*{
         value: player,
         name: "ahoj",
         anchor: [0.5, 0.5]
-    }]);
-setTimeout(function () { return game.loadSprite([{
-        URL: "obr/ahoj.png",
-        name: "nien"
-    }], alert); }, 5000);
-//};
+    }*/]);
+    var sprite = {};
+    setTimeout(function () { return game.loadSprite([{
+            URL: "obr/ahoj.png",
+            name: "nien"
+        }], function () {
+        game.createSprite([{
+                name: "nien",
+                value: sprite,
+                anchor: [0.5, 0.5]
+            }]);
+    }); }, 1000);
+};
