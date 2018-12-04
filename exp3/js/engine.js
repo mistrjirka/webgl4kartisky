@@ -1,12 +1,8 @@
 //main game file
-//references
-/// <reference path = "lib/phaser.d.ts" />
 var KartiskyGL = /** @class */ (function () {
     function KartiskyGL(div, rendering, spriteLoading, toCreate, width, height) {
         if (width === void 0) { width = 1280; }
         if (height === void 0) { height = 720; }
-        this.spriteLoading = [];
-        this.toCreate = [];
         var settingsForPhaser = {
             preload: this.preload,
             create: this.create,
@@ -70,6 +66,8 @@ var KartiskyGL = /** @class */ (function () {
             element.value.anchor.setTo(element[0], element[1]);
         });
     };
+    KartiskyGL.prototype.createMapByArray = function (map) {
+    };
     return KartiskyGL;
 }());
 window.onload = function () {
@@ -77,11 +75,11 @@ window.onload = function () {
     var game = new KartiskyGL("game", "auto", [{
             name: "ahoj",
             URL: "obr/ahoj.png"
-        }], [ /*{
-        value: player,
-        name: "ahoj",
-        anchor: [0.5, 0.5]
-    }*/]);
+        }], [{
+            value: player,
+            name: "ahoj",
+            anchor: [0.5, 0.5]
+        }]);
     var sprite = {};
     setTimeout(function () { return game.loadSprite([{
             URL: "obr/ahoj.png",

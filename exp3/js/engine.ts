@@ -3,39 +3,54 @@
 //references
 /// <reference path = "lib/phaser.d.ts" />
 
+type LoadingForm = {
+    URL: string,
+    name: string
+}
+
+interface ISprite_loading extends Array < LoadingForm > {}
+
+type Sprite = {
+    value: {
+        [propName: string]: any
+    },
+    name: string,
+    anchor: number[],
+    x ? : number,
+    y ? : number
+}
+
+
+interface ISprite_create extends Array <Sprite> {}
+
+type CellOfMap = {
+   
+    field: {
+        tile_name: string,
+        dynamic: boolean,
+        card: any
+    }
+}
+
+interface map_for_rendering extends Array<Array<CellOfMap>>{
+    x: number,
+    y: number,
+    x_size: number,
+    y_size: number,
+    border_thicknes: number,
+    border_type: "sprite" | "color"
+}
+
 
 class KartiskyGL {
 
     public game: Phaser.Game;
 
-    public spriteLoading: {
-        URL: string,
-        name: string
-    } [] = [];
+    public spriteLoading: ISprite_loading;
 
-    public toCreate: {
-        value: {
-            [propName: string]: any
-        },
-        name: string,
-        anchor: number[],
-        x: number,
-        y: number
-    } [] = [];
+    public toCreate: ISprite_create;
 
-
-    constructor(div: string, rendering: string, spriteLoading: {
-        URL: string,
-        name: string
-    } [], toCreate: {
-        value: {
-            [propName: string]: any
-        },
-        name: string,
-        anchor: number[],
-        x ? : number,
-        y ? : number
-    } [], width = 1280, height = 720) {
+    constructor(div: string, rendering: string, spriteLoading: ISprite_loading, toCreate: ISprite_create, width = 1280, height = 720) {
 
         var settingsForPhaser = {
             preload: this.preload,
@@ -76,13 +91,10 @@ class KartiskyGL {
         });
     }
 
-    public loadSprite(sprites: {
-        URL: string,
-        name: string
-    } [], callback: any) {
+    public loadSprite(sprites: ISprite_loading, callback: any) {
         var game = this.game;
         var loader = new Phaser.Loader(game);
-        sprites.forEach(function(element){
+        sprites.forEach(function (element) {
             loader.image(element.name, element.URL); /* loader.atlasJSONHash('anotherAtlas', '//url/to/texture', '//url/to/atlas'); */
             loader.onLoadComplete.addOnce(callback);
             loader.start();
@@ -96,20 +108,12 @@ class KartiskyGL {
         })
     }
 
-    public createSprite(sprites: {
-        value: {
-            [propName: string]: any
-        },
-        name: string,
-        anchor: number[],
-        x ? : number,
-        y ? : number
-    }[]){
-        
+    public createSprite(sprites: ISprite_create) {
+
         var phaser = this;
 
-        sprites.forEach(function(element){
-            
+        sprites.forEach(function (element) {
+
             if (element.x && element.y) {
                 element.value = phaser.game.add.sprite(element.x, element.y, element.name);
             } else {
@@ -118,6 +122,13 @@ class KartiskyGL {
             element.value.anchor.setTo(element[0], element[1]);
         });
     }
+
+    public createMapByArray(map: map_for_rendering) {
+        let xPix: number = 0;
+        let yPix: number = 0;
+
+
+    }
 }
 
 window.onload = () => {
@@ -125,22 +136,22 @@ window.onload = () => {
     let game = new KartiskyGL("game", "auto", [{
         name: "ahoj",
         URL: "obr/ahoj.png"
-    }], [/*{
+    }], [{
         value: player,
         name: "ahoj",
         anchor: [0.5, 0.5]
-    }*/]);
+    }]);
 
     var sprite = {};
 
     setTimeout(() => game.loadSprite([{
         URL: "obr/ahoj.png",
         name: "nien"
-    }], function(){
+    }], function () {
         game.createSprite([{
             name: "nien",
             value: sprite,
-            anchor: [0.5,0.5]
+            anchor: [0.5, 0.5]
         }]);
     }), 1000);
 
