@@ -78,22 +78,25 @@ var KartiskyGL = /** @class */ (function () {
     KartiskyGL.prototype.createSprite = function (sprites) {
         var phaser = this;
         sprites.forEach(function (element) {
-            if (element.x && element.y) {
+            if (typeof element.x === "number" && typeof element.y === "number") {
+                console.log("xy position");
                 element.value = phaser.game.add.sprite(element.x, element.y, element.name);
             }
             else {
+                console.log(element.x + " ahoj  " + element.y);
                 element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
             }
             if (element.scale) {
-                element.value.scale.x = element.scale.width;
-                element.value.scale.y = element.scale.height;
+                console.log("scale");
+                console.log(element.scale.width + " " + element.scale.height);
+                element.value.width = element.scale.width;
+                element.value.height = element.scale.height;
             }
             element.value.anchor.setTo(element[0], element[1]);
         });
     };
     KartiskyGL.prototype.renderMap = function (map) {
         if (map.background.scale) {
-            alert(map.background.scale);
             this.createSprite([{
                     x: map.background.x,
                     y: map.background.y,
@@ -101,13 +104,15 @@ var KartiskyGL = /** @class */ (function () {
                     name: map.background.name,
                     anchor: [1, 1],
                     scale: {
-                        width: map.x * map.x_size,
-                        height: map.y * map.y_size
+                        width: map.map.length * map.x_size,
+                        height: map.map[0].length * map.y_size
                     }
                 }]);
         }
         else {
             this.createSprite([{
+                    x: map.background.x,
+                    y: map.background.y,
                     value: map.background.value,
                     name: map.background.name,
                     anchor: [1, 1]
@@ -119,9 +124,9 @@ var KartiskyGL = /** @class */ (function () {
                 console.log("y" + y);
                 if (!map.map[x][y].empty) {
                     this.createSprite([{
-                            value: map[x][y].card.sprite.value,
-                            name: map[x][y].card.sprite.name,
-                            anchor: map[x][y].card.sprite.anchor,
+                            value: map.map[x][y].card.sprite.value,
+                            name: map.map[x][y].card.sprite.name,
+                            anchor: map.map[x][y].card.sprite.anchor,
                             x: map.x + x * map.x_size,
                             y: map.y + y * map.y_size
                         }]);
@@ -159,7 +164,15 @@ window.onload = function () {
     var exampleMap = {
         map: [
             [{
-                    empty: true
+                    empty: false,
+                    card: {
+                        sprite: {
+                            value: {},
+                            name: "ahoj",
+                            anchor: [0.1, 0.1]
+                        },
+                        statistics: {}
+                    }
                 }, {
                     empty: true
                 }, {
