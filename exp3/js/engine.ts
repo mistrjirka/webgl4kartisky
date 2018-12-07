@@ -6,7 +6,7 @@
 type LoadingForm = {
     URL: string,
     name: string,
-    type ? : "image" | "text" | "tilemap" | "audio",
+    type ? : "image" | "text" | "tilemap" | "audio"
 }
 
 interface ISprite_loading extends Array < LoadingForm > {}
@@ -35,9 +35,10 @@ type CellOfMap = {
             value: {},
             name: string,
             anchor: number[],
-            scale?: {
-                width: number,
-                height: number
+            scale ? : {
+                type: "automatic" | "manual", // if is mode set to automatic width and height aren't necessary
+                width ? : number,
+                height ? : number
             }
         },
         statistics: {}
@@ -45,19 +46,30 @@ type CellOfMap = {
     }
 }
 
+interface background {
+    value: {},
+        scale: boolean,
+        x ? : number,
+        y ? : number,
+        name: string
+}
+
+interface cardBox {
+    x: number, 
+    y: number, 
+    width: number, 
+    height: number, 
+    anchor: number[], 
+    background: background
+}
+
 interface IMap_for_rendering {
     map: Array < Array < CellOfMap >> ,
-        x: number,
-        y: number,
-        x_size: number,
-        y_size: number,
-        background: {
-            value: {},
-            scale: boolean,
-            x ? : number,
-            y ? : number,
-            name: string
-        }
+    x: number,
+    y: number,
+    x_size: number,
+    y_size: number,
+    background: background
 }
 
 
@@ -162,7 +174,7 @@ class KartiskyGL {
                 console.log("xy position");
                 element.value = phaser.game.add.sprite(element.x, element.y, element.name);
             } else {
-                console.log(element.x + " ahoj  "+ element.y);
+                console.log(element.x + " ahoj  " + element.y);
                 element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
             }
 
@@ -205,19 +217,46 @@ class KartiskyGL {
             for (var y = 0; y < map.map[x].length; y++) {
                 console.log("y" + y);
                 if (!map.map[x][y].empty) {
-                    this.createSprite([{
+                    var configOfSprite: ISprite_create = [{
                         value: map.map[x][y].card.sprite.value,
                         name: map.map[x][y].card.sprite.name,
                         anchor: map.map[x][y].card.sprite.anchor,
                         x: map.x + x * map.x_size,
                         y: map.y + y * map.y_size
-                    }]);
+                    }];
+
+                    if (map.map[x][y].card.sprite.scale) {
+                        if (map.map[x][y].card.sprite.scale.type === "automatic") {
+                            configOfSprite[0].scale = {
+                                width: 0,
+                                height: 0
+                            };
+                            configOfSprite[0].scale.width = map.x_size;
+                            configOfSprite[0].scale.height = map.y_size;
+                        } else if (map.map[x][y].card.sprite.scale.type === "manual") {
+                            configOfSprite[0].scale = {
+                                width: 0,
+                                height: 0
+                            };
+                            configOfSprite[0].scale.width = map.map[x][y].card.sprite.scale.width;
+                            configOfSprite[0].scale.height = map.map[x][y].card.sprite.scale.height;
+                        }
+                    }
+
+                    this.createSprite(configOfSprite);
                 }
             }
         }
     }
 
-    public setStaticBackground(sprite: string, x: number, y: number, scale ? : boolean, width ? : number, height ? : number) {
+    public createCardbox() {
+
+    }
+
+    public addToCardBox() {
+
+    }
+    public removeFromCardBox() {
 
     }
 }
@@ -225,8 +264,8 @@ class KartiskyGL {
 window.onload = () => {
     var player = {};
     let game = new KartiskyGL("game", "auto", [{
-        name: "ahoj",
-        URL: "obr/ahoj.png"
+        name: "car",
+        URL: "obr/car.png"
     }], [
         /*{
                 value: player,
@@ -252,10 +291,10 @@ window.onload = () => {
             [{
                 empty: false,
                 card: {
-                    sprite:{
+                    sprite: {
                         value: {},
-                        name: "ahoj",
-                        anchor: [0.1,0.1]
+                        name: "car",
+                        anchor: [0.1, 0.1]
                     },
                     statistics: {}
                 }
@@ -269,7 +308,18 @@ window.onload = () => {
             }, {
                 empty: true
             }, {
-                empty: true
+                empty: false,
+                card: {
+                    sprite: {
+                        value: {},
+                        name: "car",
+                        anchor: [0.1, 0.1],
+                        scale: {
+                            type: "automatic"
+                        }
+                    },
+                    statistics: {}
+                }
             }]
         ],
         x: 0,
@@ -285,13 +335,12 @@ window.onload = () => {
         }
     }
     setTimeout(function () {
-            game.load([{
-                URL: "obr/background.png",
-                name: "redBackground",
-                type: "image"
-            }], function () {
-                game.renderMap(exampleMap)
-            });
-        }, 2000
-    );
+        game.load([{
+            URL: "obr/background.png",
+            name: "redBackground",
+            type: "image"
+        }], function () {
+            game.renderMap(exampleMap)
+        });
+    }, 2000);
 }

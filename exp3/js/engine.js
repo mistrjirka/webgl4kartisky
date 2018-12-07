@@ -123,13 +123,32 @@ var KartiskyGL = /** @class */ (function () {
             for (var y = 0; y < map.map[x].length; y++) {
                 console.log("y" + y);
                 if (!map.map[x][y].empty) {
-                    this.createSprite([{
+                    var configOfSprite = [{
                             value: map.map[x][y].card.sprite.value,
                             name: map.map[x][y].card.sprite.name,
                             anchor: map.map[x][y].card.sprite.anchor,
                             x: map.x + x * map.x_size,
                             y: map.y + y * map.y_size
-                        }]);
+                        }];
+                    if (map.map[x][y].card.sprite.scale) {
+                        if (map.map[x][y].card.sprite.scale.type === "automatic") {
+                            configOfSprite[0].scale = {
+                                width: 0,
+                                height: 0
+                            };
+                            configOfSprite[0].scale.width = map.x_size;
+                            configOfSprite[0].scale.height = map.y_size;
+                        }
+                        else if (map.map[x][y].card.sprite.scale.type === "manual") {
+                            configOfSprite[0].scale = {
+                                width: 0,
+                                height: 0
+                            };
+                            configOfSprite[0].scale.width = map.map[x][y].card.sprite.scale.width;
+                            configOfSprite[0].scale.height = map.map[x][y].card.sprite.scale.height;
+                        }
+                    }
+                    this.createSprite(configOfSprite);
                 }
             }
         }
@@ -141,8 +160,8 @@ var KartiskyGL = /** @class */ (function () {
 window.onload = function () {
     var player = {};
     var game = new KartiskyGL("game", "auto", [{
-            name: "ahoj",
-            URL: "obr/ahoj.png"
+            name: "car",
+            URL: "obr/car.png"
         }], [
     /*{
             value: player,
@@ -168,7 +187,7 @@ window.onload = function () {
                     card: {
                         sprite: {
                             value: {},
-                            name: "ahoj",
+                            name: "car",
                             anchor: [0.1, 0.1]
                         },
                         statistics: {}
@@ -183,7 +202,18 @@ window.onload = function () {
                 }, {
                     empty: true
                 }, {
-                    empty: true
+                    empty: false,
+                    card: {
+                        sprite: {
+                            value: {},
+                            name: "car",
+                            anchor: [0.1, 0.1],
+                            scale: {
+                                type: "automatic"
+                            }
+                        },
+                        statistics: {}
+                    }
                 }]
         ],
         x: 0,
