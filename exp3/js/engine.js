@@ -96,28 +96,7 @@ var KartiskyGL = /** @class */ (function () {
         });
     };
     KartiskyGL.prototype.renderMap = function (map) {
-        if (map.background.scale) {
-            this.createSprite([{
-                    x: map.background.x,
-                    y: map.background.y,
-                    value: map.background.value,
-                    name: map.background.name,
-                    anchor: [1, 1],
-                    scale: {
-                        width: map.map.length * map.x_size,
-                        height: map.map[0].length * map.y_size
-                    }
-                }]);
-        }
-        else {
-            this.createSprite([{
-                    x: map.background.x,
-                    y: map.background.y,
-                    value: map.background.value,
-                    name: map.background.name,
-                    anchor: [1, 1]
-                }]);
-        }
+        this.renderBackground(map.background, { width: map.map.length * map.x_size, height: map.map[0].length * map.y_size });
         for (var x = 0; x < map.map.length; x++) {
             console.log("x" + x);
             for (var y = 0; y < map.map[x].length; y++) {
@@ -153,7 +132,36 @@ var KartiskyGL = /** @class */ (function () {
             }
         }
     };
-    KartiskyGL.prototype.setStaticBackground = function (sprite, x, y, scale, width, height) {
+    KartiskyGL.prototype.createCardbox = function (config) {
+        this.renderBackground(config.background, { width: config.width, height: config.height });
+    };
+    KartiskyGL.prototype.addToCardBox = function () {
+    };
+    KartiskyGL.prototype.removeFromCardBox = function () {
+    };
+    KartiskyGL.prototype.renderBackground = function (background, scale) {
+        if (background.scale && typeof scale != "undefined") {
+            this.createSprite([{
+                    x: background.x,
+                    y: background.y,
+                    value: background.value,
+                    name: background.name,
+                    anchor: [1, 1],
+                    scale: {
+                        width: scale.width,
+                        height: scale.height
+                    }
+                }]);
+        }
+        else {
+            this.createSprite([{
+                    x: background.x,
+                    y: background.y,
+                    value: background.value,
+                    name: background.name,
+                    anchor: [1, 1]
+                }]);
+        }
     };
     return KartiskyGL;
 }());

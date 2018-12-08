@@ -58,8 +58,13 @@ interface cardBox {
     x: number, 
     y: number, 
     width: number, 
-    height: number, 
-    anchor: number[], 
+    height: number,
+    anchor: number[],
+    card_size: {
+        width: number,
+        height: number
+    },
+    stackingAfterOverflow: boolean, 
     background: background
 }
 
@@ -190,27 +195,7 @@ class KartiskyGL {
     }
 
     public renderMap(map: IMap_for_rendering) {
-        if (map.background.scale) {
-            this.createSprite([{
-                x: map.background.x,
-                y: map.background.y,
-                value: map.background.value,
-                name: map.background.name,
-                anchor: [1, 1],
-                scale: {
-                    width: map.map.length * map.x_size,
-                    height: map.map[0].length * map.y_size
-                }
-            }]);
-        } else {
-            this.createSprite([{
-                x: map.background.x,
-                y: map.background.y,
-                value: map.background.value,
-                name: map.background.name,
-                anchor: [1, 1]
-            }]);
-        }
+        this.renderBackground(map.background, {width: map.map.length * map.x_size, height: map.map[0].length * map.y_size});
 
         for (var x = 0; x < map.map.length; x++) {
             console.log("x" + x);
@@ -249,8 +234,10 @@ class KartiskyGL {
         }
     }
 
-    public createCardbox() {
+    public createCardbox(config: cardBox) {
+        this.renderBackground(config.background, {width: config.width, height: config.height});
 
+        
     }
 
     public addToCardBox() {
@@ -258,6 +245,30 @@ class KartiskyGL {
     }
     public removeFromCardBox() {
 
+    }
+
+    private renderBackground(background: background, scale?: {width: number, height: number}){
+        if (background.scale && typeof scale != "undefined") {
+            this.createSprite([{
+                x: background.x,
+                y: background.y,
+                value: background.value,
+                name: background.name,
+                anchor: [1, 1],
+                scale: {
+                    width: scale.width,
+                    height: scale.height
+                }
+            }]);
+        } else {
+            this.createSprite([{
+                x: background.x,
+                y: background.y,
+                value: background.value,
+                name: background.name,
+                anchor: [1, 1]
+            }]);
+        }
     }
 }
 
