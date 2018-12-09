@@ -12,9 +12,7 @@ type LoadingForm = {
 interface ISprite_loading extends Array < LoadingForm > {}
 
 type Sprite = {
-    value: {
-        [propName: string]: any
-    },
+    id: string,
     name: string,
     anchor: number[],
     x ? : number,
@@ -25,29 +23,29 @@ type Sprite = {
     }
 }
 
+interface ISpriteForMap extends Sprite {
+    typeOfScale?: "automatic" | "manual"
+}
 
 interface ISprite_create extends Array < Sprite > {}
 
 type CellOfMap = {
     empty: boolean,
     card ? : {
-        sprite: {
-            value: {},
-            name: string,
-            anchor: number[],
-            scale ? : {
-                type: "automatic" | "manual", // if is mode set to automatic width and height aren't necessary
-                width ? : number,
-                height ? : number
-            }
-        },
+        sprite: ISpriteForMap
         statistics: {}
 
     }
 }
 
+interface IGraphicMap {
+    [index: number]: {
+        [index: number]: Phaser.Sprite | undefined
+    }
+}
+
 interface background {
-    value: {},
+    id: string,
         scale: boolean,
         x ? : number,
         y ? : number,
@@ -55,26 +53,26 @@ interface background {
 }
 
 interface cardBox {
-    x: number, 
-    y: number, 
-    width: number, 
-    height: number,
-    anchor: number[],
-    card_size: {
+    x: number,
+        y: number,
         width: number,
-        height: number
-    },
-    stackingAfterOverflow: boolean, 
-    background: background
+        height: number,
+        anchor: number[],
+        card_size: {
+            width: number,
+            height: number
+        },
+        stackingAfterOverflow: boolean,
+        background: background
 }
 
 interface IMap_for_rendering {
     map: Array < Array < CellOfMap >> ,
-    x: number,
-    y: number,
-    x_size: number,
-    y_size: number,
-    background: background
+        x: number,
+        y: number,
+        x_size: number,
+        y_size: number,
+        background: background
 }
 
 
@@ -88,26 +86,31 @@ class KartiskyGL {
 
     public mapIndex: Array < IMap_for_rendering > ;
 
-    constructor(div: string, rendering: string, spriteLoading: ISprite_loading, toCreate: ISprite_create, width = 1280, height = 720) {
+    public sprites: Array < {
+            sprite: Phaser.Sprite,
+            id: string
+        } >
 
-        var settingsForPhaser = {
-            preload: this.preload,
-            create: this.create,
-            spriteLoading: spriteLoading,
-            toCreate: toCreate
-        };
-        switch (rendering) {
-            case "auto":
-                this.game = new Phaser.Game(width, height, Phaser.AUTO, div, settingsForPhaser);
-                break;
-            case "webgl":
-                this.game = new Phaser.Game(width, height, Phaser.WEBGL, div, settingsForPhaser);
-                break;
-            case "canvas":
-                this.game = new Phaser.Game(width, height, Phaser.CANVAS, div, settingsForPhaser);
-                break;
+        constructor(div: string, rendering: string, spriteLoading: ISprite_loading, toCreate: ISprite_create, width = 1280, height = 720) {
+
+            var settingsForPhaser = {
+                preload: this.preload,
+                create: this.create,
+                spriteLoading: spriteLoading,
+                toCreate: toCreate
+            };
+            switch (rendering) {
+                case "auto":
+                    this.game = new Phaser.Game(width, height, Phaser.AUTO, div, settingsForPhaser);
+                    break;
+                case "webgl":
+                    this.game = new Phaser.Game(width, height, Phaser.WEBGL, div, settingsForPhaser);
+                    break;
+                case "canvas":
+                    this.game = new Phaser.Game(width, height, Phaser.CANVAS, div, settingsForPhaser);
+                    break;
+            }
         }
-    }
 
     private preload() {
         var phaser = this;
@@ -121,13 +124,21 @@ class KartiskyGL {
         var phaser = this;
         this.toCreate.forEach(function (element) {
             if (element.x && element.y) {
-                element.value = phaser.game.add.sprite(element.x, element.y, element.name);
+                this.sprites.push({
+                    sprite: phaser.game.add.sprite(element.x, element.y, element.name),
+                    id: this.toCreate.id
+                });
             } else {
-                element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
+                this.sprites.push({
+                    sprite: phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name),
+                    id: this.toCreate.id
+                });
             }
-            element.value.anchor.setTo(element[0], element[1]);
+            this.sprites[this.sprites.length].anchor.setTo(element[0], element[1]);
         });
     }
+
+
 
     public load(sprites: ISprite_loading, callback: any) {
         var game = this.game;
@@ -173,29 +184,36 @@ class KartiskyGL {
 
         var phaser = this;
 
-        sprites.forEach(function (element) {
+        var value: Array < Phaser.Sprite > = [] ;
+
+        sprites.forEach(function (element, index) {
 
             if (typeof element.x === "number" && typeof element.y === "number") {
                 console.log("xy position");
-                element.value = phaser.game.add.sprite(element.x, element.y, element.name);
+                value.push(phaser.game.add.sprite(element.x, element.y, element.name));
             } else {
                 console.log(element.x + " ahoj  " + element.y);
-                element.value = phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name);
+                value.push(phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name));
             }
 
             if (element.scale) {
                 console.log("scale");
                 console.log(element.scale.width + " " + element.scale.height);
-                element.value.width = element.scale.width;
-                element.value.height = element.scale.height;
+                value[value.length - 1].width = element.scale.width;
+                value[value.length - 1].height = element.scale.height;
             }
 
-            element.value.anchor.setTo(element[0], element[1]);
+            value[value.length - 1].anchor.setTo(element[0], element[1]);
         });
+
+        return value;
     }
 
     public renderMap(map: IMap_for_rendering) {
-        this.renderBackground(map.background, {width: map.map.length * map.x_size, height: map.map[0].length * map.y_size});
+        this.renderBackground(map.background, {
+            width: map.map.length * map.x_size,
+            height: map.map[0].length * map.y_size
+        });
 
         for (var x = 0; x < map.map.length; x++) {
             console.log("x" + x);
@@ -203,22 +221,23 @@ class KartiskyGL {
                 console.log("y" + y);
                 if (!map.map[x][y].empty) {
                     var configOfSprite: ISprite_create = [{
-                        value: map.map[x][y].card.sprite.value,
+                        id: map.map[x][y].card.sprite.id,
                         name: map.map[x][y].card.sprite.name,
                         anchor: map.map[x][y].card.sprite.anchor,
                         x: map.x + x * map.x_size,
                         y: map.y + y * map.y_size
                     }];
 
-                    if (map.map[x][y].card.sprite.scale) {
-                        if (map.map[x][y].card.sprite.scale.type === "automatic") {
+                    
+                        if (map.map[x][y].card.sprite.typeOfScale === "automatic") {
+                            console.log("automatic")
                             configOfSprite[0].scale = {
                                 width: 0,
                                 height: 0
                             };
                             configOfSprite[0].scale.width = map.x_size;
                             configOfSprite[0].scale.height = map.y_size;
-                        } else if (map.map[x][y].card.sprite.scale.type === "manual") {
+                        } else if (map.map[x][y].card.sprite.typeOfScale === "manual" && typeof map.map[x][y].card.sprite.scale !== "undefined") {
                             configOfSprite[0].scale = {
                                 width: 0,
                                 height: 0
@@ -226,7 +245,7 @@ class KartiskyGL {
                             configOfSprite[0].scale.width = map.map[x][y].card.sprite.scale.width;
                             configOfSprite[0].scale.height = map.map[x][y].card.sprite.scale.height;
                         }
-                    }
+                    
 
                     this.createSprite(configOfSprite);
                 }
@@ -234,10 +253,19 @@ class KartiskyGL {
         }
     }
 
-    public createCardbox(config: cardBox) {
-        this.renderBackground(config.background, {width: config.width, height: config.height});
+    public removeFromMap(map: IMap_for_rendering, coordinates: number[]) {
+        if (!map.map[coordinates[0]][coordinates[1]].empty) {
+            //map.map[coordinates[0]][coordinates[1]].card.sprite.
+        }
+    }
 
-        
+    public createCardbox(config: cardBox) {
+        this.renderBackground(config.background, {
+            width: config.width,
+            height: config.height
+        });
+
+
     }
 
     public addToCardBox() {
@@ -247,14 +275,17 @@ class KartiskyGL {
 
     }
 
-    private renderBackground(background: background, scale?: {width: number, height: number}){
+    private renderBackground(background: background, scale ? : {
+        width: number,
+        height: number
+    }) {
         if (background.scale && typeof scale != "undefined") {
             this.createSprite([{
                 x: background.x,
                 y: background.y,
-                value: background.value,
                 name: background.name,
                 anchor: [1, 1],
+                id: background.id,
                 scale: {
                     width: scale.width,
                     height: scale.height
@@ -264,7 +295,7 @@ class KartiskyGL {
             this.createSprite([{
                 x: background.x,
                 y: background.y,
-                value: background.value,
+                id: background.id,
                 name: background.name,
                 anchor: [1, 1]
             }]);
@@ -303,7 +334,7 @@ window.onload = () => {
                 empty: false,
                 card: {
                     sprite: {
-                        value: {},
+                        id: "car",
                         name: "car",
                         anchor: [0.1, 0.1]
                     },
@@ -322,12 +353,11 @@ window.onload = () => {
                 empty: false,
                 card: {
                     sprite: {
-                        value: {},
+                        id: "var2",
                         name: "car",
                         anchor: [0.1, 0.1],
-                        scale: {
-                            type: "automatic"
-                        }
+                        typeOfScale: "automatic"
+                        
                     },
                     statistics: {}
                 }
@@ -338,7 +368,7 @@ window.onload = () => {
         x_size: 100,
         y_size: 100,
         background: {
-            value: {},
+            id: "background2",
             scale: true,
             x: 0,
             y: 0,
