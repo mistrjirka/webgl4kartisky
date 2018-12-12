@@ -92,8 +92,6 @@ interface IMap_for_rendering {
 
 interface IImage extends Array<Image>{};
 
-var done: boolean = true;
-
 class KartiskyGL {
     public game: Phaser.Game;
 
@@ -117,8 +115,6 @@ class KartiskyGL {
         image: Phaser.Image;
         id: string;
     }> = [];
-
-    public done: boolean = false;
 
     constructor(
         div: string,
@@ -263,7 +259,7 @@ class KartiskyGL {
                 );
             }
 
-            if (element.scale) {
+            if (typeof element.scale !== "undefined") {
                 value[value.length - 1].width = element.scale.width;
                 value[value.length - 1].height = element.scale.height;
             }
@@ -297,8 +293,8 @@ class KartiskyGL {
                     )
                 );
             }
-
-            if (element.scale) {
+            console.log(element.scale);
+            if (typeof element.scale !== "undefined") {
                 value[value.length - 1].width = element.scale.width;
                 value[value.length - 1].height = element.scale.height;
             }
@@ -311,17 +307,12 @@ class KartiskyGL {
     }
 
     public renderMap(map: IMap_for_rendering) {
-        console.log(map.map.length * map.x_size + " " +  map.map[0].length * map.y_size);
         this.renderBackground(map.background, {
             width: map.map.length * map.x_size,
             height: map.map[0].length * map.y_size
         });
-        done = true;
-        alert(this.done)
         for (var x = 0; x < map.map.length; x++) {
-            console.log("x" + x);
             for (var y = 0; y < map.map[x].length; y++) {
-                console.log("y" + y);
                 if (!map.map[x][y].empty) {
                     var configOfSprite: ISprite_create = [
                         {
@@ -334,7 +325,6 @@ class KartiskyGL {
                     ];
 
                     if (map.map[x][y].card.sprite.typeOfScale === "automatic") {
-                        console.log("automatic");
                         configOfSprite[0].scale = {
                             width: 0,
                             height: 0
@@ -393,7 +383,7 @@ class KartiskyGL {
             height: number;
         }
     ) {
-        if (background.scale && typeof scale != "undefined") {
+        if (typeof scale != "undefined") {
             this.createImage([
                 {
                     x: background.x,
@@ -433,10 +423,7 @@ class KartiskyGL {
     }
 
     private render(){
-        if(done){
-            console.log(this.images[0]);
-            this.game.debug.spriteBounds(this.images[0]);
-        }
+
     }
 }
 

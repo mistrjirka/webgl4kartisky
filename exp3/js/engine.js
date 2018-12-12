@@ -3,7 +3,6 @@
 //references
 /// <reference path = "lib/phaser.d.ts" />
 ;
-var done = true;
 var KartiskyGL = /** @class */ (function () {
     function KartiskyGL(div, rendering, spriteLoading, toCreate, width, height) {
         if (width === void 0) { width = 1280; }
@@ -100,7 +99,7 @@ var KartiskyGL = /** @class */ (function () {
             else {
                 value.push(phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name));
             }
-            if (element.scale) {
+            if (typeof element.scale !== "undefined") {
                 value[value.length - 1].width = element.scale.width;
                 value[value.length - 1].height = element.scale.height;
             }
@@ -120,7 +119,10 @@ var KartiskyGL = /** @class */ (function () {
             else {
                 value.push(game.game.add.image(game.game.world.centerX, game.game.world.centerY, element.name));
             }
-            if (element.scale) {
+            console.log(element.scale);
+            if (typeof element.scale !== "undefined") {
+                alert("ss");
+                console.log(element.scale.width + " s" + element.scale.height);
                 value[value.length - 1].width = element.scale.width;
                 value[value.length - 1].height = element.scale.height;
             }
@@ -130,17 +132,13 @@ var KartiskyGL = /** @class */ (function () {
         return value;
     };
     KartiskyGL.prototype.renderMap = function (map) {
-        console.log(map.map.length * map.x_size + " " + map.map[0].length * map.y_size);
         this.renderBackground(map.background, {
             width: map.map.length * map.x_size,
             height: map.map[0].length * map.y_size
         });
-        done = true;
-        alert(this.done);
+        this.done = true;
         for (var x = 0; x < map.map.length; x++) {
-            console.log("x" + x);
             for (var y = 0; y < map.map[x].length; y++) {
-                console.log("y" + y);
                 if (!map.map[x][y].empty) {
                     var configOfSprite = [
                         {
@@ -152,7 +150,6 @@ var KartiskyGL = /** @class */ (function () {
                         }
                     ];
                     if (map.map[x][y].card.sprite.typeOfScale === "automatic") {
-                        console.log("automatic");
                         configOfSprite[0].scale = {
                             width: 0,
                             height: 0
@@ -200,7 +197,7 @@ var KartiskyGL = /** @class */ (function () {
     KartiskyGL.prototype.addToCardBox = function () { };
     KartiskyGL.prototype.removeFromCardBox = function () { };
     KartiskyGL.prototype.renderBackground = function (background, scale) {
-        if (background.scale && typeof scale != "undefined") {
+        if (typeof scale != "undefined") {
             this.createImage([
                 {
                     x: background.x,
@@ -238,9 +235,9 @@ var KartiskyGL = /** @class */ (function () {
         });
     };
     KartiskyGL.prototype.render = function () {
-        if (done) {
-            console.log(this.images[0]);
-            this.game.debug.spriteBounds(this.images[0]);
+        if (this.done) {
+            this.game.debug.spriteBounds(this.images[0].image);
+            console.log(this.images[0].image.height + " ahoj" + this.images[0].image.width);
         }
     };
     return KartiskyGL;
