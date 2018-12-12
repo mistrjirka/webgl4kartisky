@@ -12,12 +12,5 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "target": "es6"
-  },
-  "compileOnSave": false,
-  "atom": {
-    "rewriteTsconfig": false
-  },
-  "files": [
-    "engine.ts"
-  ]
+  }
 }

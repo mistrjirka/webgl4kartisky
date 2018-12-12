@@ -1,5 +1,6 @@
 module.exports = {
 
-    target: 'src'
+    target: 'src',
+    tabWidth: 4,
 
 };
