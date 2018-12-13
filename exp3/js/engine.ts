@@ -50,11 +50,7 @@ interface ISpriteForMap extends Sprite {
 interface ISprite_create extends Array<Sprite> {}
 
 interface IGraphicMap {
-    map: {
-        [index: number]: {
-            [index: number]: { sprite: Phaser.Sprite; empty: boolean };
-        };
-    };
+    map: Array<Array<{ sprite: Phaser.Sprite | undefined; empty: boolean }>>;
     x: number;
     y: number;
     x_size: number;
@@ -88,9 +84,10 @@ interface IMap_for_rendering {
     x_size: number;
     y_size: number;
     background: IBackground;
+    id: string;
 }
 
-interface IImage extends Array<Image>{};
+interface IImage extends Array<Image> {}
 
 class KartiskyGL {
     public game: Phaser.Game;
@@ -160,7 +157,6 @@ class KartiskyGL {
                 );
                 break;
         }
-        
     }
 
     private preload() {
@@ -265,8 +261,11 @@ class KartiskyGL {
             }
 
             value[value.length - 1].anchor.setTo(element[0], element[1]);
-            
-            phaser.sprites.push({sprite: value[value.length - 1], id: element.id});
+
+            phaser.sprites.push({
+                sprite: value[value.length - 1],
+                id: element.id
+            });
         });
         return value;
     }
@@ -276,7 +275,7 @@ class KartiskyGL {
 
         var value: Array<Phaser.Image> = [];
 
-        image.forEach(function(element, index){
+        image.forEach(function(element, index) {
             if (
                 typeof element.x === "number" &&
                 typeof element.y === "number"
@@ -300,17 +299,31 @@ class KartiskyGL {
             }
 
             value[value.length - 1].anchor.setTo(element[0], element[1]);
-            game.images.push({image: value[value.length - 1], id: element.id});
+            game.images.push({
+                image: value[value.length - 1],
+                id: element.id
+            });
         });
 
         return value;
     }
 
     public renderMap(map: IMap_for_rendering) {
-        this.renderBackground(map.background, {
+        let background = this.renderBackground(map.background, {
             width: map.map.length * map.x_size,
             height: map.map[0].length * map.y_size
         });
+
+        var value: IGraphicMap;
+
+        var tmpMap = []
+        map.map.forEach(function(elementx, index) {
+            tmpMap[index] = [];
+            elementx.forEach((elementy, indey) => {
+                tmpMap[index].push({ sprite: undefined, empty: true });
+            });
+        });
+
         for (var x = 0; x < map.map.length; x++) {
             for (var y = 0; y < map.map[x].length; y++) {
                 if (!map.map[x][y].empty) {
@@ -345,10 +358,22 @@ class KartiskyGL {
                             map.map[x][y].card.sprite.scale.height;
                     }
 
-                    this.createSprite(configOfSprite);
+                    let finalSprite = this.createSprite(configOfSprite);
+                    tmpMap[x][y] = { sprite: finalSprite[0], empty: false };
                 }
             }
         }
+
+        value = {
+            x: map.x,
+            y: map.y,
+            x_size: map.x_size,
+            y_size: map.y_size,
+            background: background,
+            map: tmpMap
+        };
+
+        this.maps.push({ map: value, id: map.id });
     }
 
     public removeFromMap(map: IGraphicMap | string, coordinates: number[]) {
@@ -360,7 +385,7 @@ class KartiskyGL {
         } else {
             let realMap = this.getMapById(map);
             if (!realMap.map[coordinates[0]][coordinates[1]].empty) {
-                realMap.map[coordinates[0]][coordinates[1]].sprite.destroy
+                realMap.map[coordinates[0]][coordinates[1]].sprite.destroy;
                 realMap.map[coordinates[0]][coordinates[1]].empty = false;
             }
         }
@@ -383,8 +408,9 @@ class KartiskyGL {
             height: number;
         }
     ) {
+        let image: Phaser.Image;
         if (typeof scale != "undefined") {
-            this.createImage([
+            image = this.createImage([
                 {
                     x: background.x,
                     y: background.y,
@@ -396,9 +422,9 @@ class KartiskyGL {
                         height: scale.height
                     }
                 }
-            ]);
+            ])[0];
         } else {
-            this.createImage([
+            image = this.createImage([
                 {
                     x: background.x,
                     y: background.y,
@@ -406,8 +432,9 @@ class KartiskyGL {
                     name: background.name,
                     anchor: [1, 1]
                 }
-            ]);
+            ])[0];
         }
+        return image;
     }
 
     public getSpriteById(id: string) {
@@ -422,9 +449,7 @@ class KartiskyGL {
         });
     }
 
-    private render(){
-
-    }
+    private render() {}
 }
 
 window.onload = () => {
@@ -507,13 +532,14 @@ window.onload = () => {
         x_size: 100,
         y_size: 100,
         background: {
-            anchor: [1,1],
+            anchor: [1, 1],
             id: "background2",
             autoScale: true,
             x: 0,
             y: 0,
             name: "redBackground"
-        }
+        },
+        id: "map2"
     };
     setTimeout(function() {
         game.load(
