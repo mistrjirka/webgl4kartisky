@@ -316,7 +316,7 @@ class KartiskyGL {
 
         var value: IGraphicMap;
 
-        var tmpMap = []
+        var tmpMap = [];
         map.map.forEach(function(elementx, index) {
             tmpMap[index] = [];
             elementx.forEach((elementy, indey) => {
@@ -380,15 +380,68 @@ class KartiskyGL {
         if (typeof map === "object") {
             if (!map.map[coordinates[0]][coordinates[1]].empty) {
                 map.map[coordinates[0]][coordinates[1]].sprite.destroy();
-                map.map[coordinates[0]][coordinates[1]].empty = false;
+                map.map[coordinates[0]][coordinates[1]].empty = true;
             }
         } else {
             let realMap = this.getMapById(map);
-            if (!realMap.map[coordinates[0]][coordinates[1]].empty) {
-                realMap.map[coordinates[0]][coordinates[1]].sprite.destroy;
-                realMap.map[coordinates[0]][coordinates[1]].empty = false;
+            if (!realMap.map.map[coordinates[0]][coordinates[1]].empty) {
+                realMap.map.map[coordinates[0]][
+                    coordinates[1]
+                ].sprite.destroy();
+                realMap.map.map[coordinates[0]][coordinates[1]].empty = true;
             }
         }
+    }
+
+    public addToMap(
+        mapOrId: IGraphicMap | string,
+        sprites: { sprite: ISpriteForMap; x: number; y: number}[]
+    ) {
+        let map: IGraphicMap;
+
+        let toCreate: ISprite_create = [];
+
+        if (typeof mapOrId === "string") {
+            map = this.getMapById(mapOrId).map;
+        } else {
+            map = mapOrId;
+        }
+
+        sprites.forEach(sprite => {
+            let x: number = sprite.x * map.x_size + map.x;
+            let y: number = sprite.y * map.x_size + map.y;
+
+            let spriteConfig = {
+                id: sprite.sprite.id,
+                name: sprite.sprite.name,
+                anchor: sprite.sprite.anchor,
+                x: x,
+                y: y,
+                scale: {
+                    width: 0,
+                    height: 0
+                }
+            };
+
+            if (sprite.sprite.typeOfScale === "automatic") {
+                spriteConfig.scale.width = map.x_size;
+                spriteConfig.scale.height = map.y_size;
+            } else if (
+                sprite.sprite.typeOfScale === "manual" &&
+                typeof sprite.sprite.scale !== "undefined"
+            ) {
+                spriteConfig.scale = {
+                    width: 0,
+                    height: 0
+                };
+                spriteConfig.scale.width = sprite.sprite.scale.width;
+                spriteConfig.scale.height = sprite.sprite.scale.height;
+            }
+
+            toCreate.push(spriteConfig);
+        });
+
+        this.createSprite(toCreate);
     }
 
     public createCardbox(config: cardBox) {
@@ -514,7 +567,7 @@ window.onload = () => {
                     empty: true
                 },
                 {
-                    empty: true,
+                    empty: false,
                     card: {
                         sprite: {
                             id: "var2",
@@ -552,6 +605,30 @@ window.onload = () => {
             ],
             function() {
                 game.renderMap(exampleMap);
+                setTimeout(function() {
+                    game.addToMap(game.getMapById("map2").map, [
+                        {
+                            sprite: {
+                                id: "varsd2",
+                                name: "car",
+                                anchor: [0.1, 0.1],
+                                typeOfScale: "automatic"
+                            },
+                            x: 0,
+                            y: 1
+                        },
+                        {
+                            sprite: {
+                                id: "varsdsad2",
+                                name: "car",
+                                anchor: [0.1, 0.1],
+                                typeOfScale: "automatic"
+                            },
+                            x: 0,
+                            y: 2
+                        }
+                    ]);
+                }, 2000);
             }
         );
     }, 2000);
