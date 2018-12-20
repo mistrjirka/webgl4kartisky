@@ -376,26 +376,29 @@ class KartiskyGL {
         this.maps.push({ map: value, id: map.id });
     }
 
-    public removeFromMap(map: IGraphicMap | string, coordinates: number[]) {
-        if (typeof map === "object") {
+    public removeFromMap(
+        mapOrId: IGraphicMap | string,
+        coordinatesArray: number[][]
+    ) {
+        let map: IGraphicMap;
+
+        if (typeof mapOrId === "object") {
+            map = mapOrId;
+        } else {
+            map = this.getMapById(mapOrId).map;
+        }
+
+        coordinatesArray.forEach(function(coordinates) {
             if (!map.map[coordinates[0]][coordinates[1]].empty) {
                 map.map[coordinates[0]][coordinates[1]].sprite.destroy();
                 map.map[coordinates[0]][coordinates[1]].empty = true;
             }
-        } else {
-            let realMap = this.getMapById(map);
-            if (!realMap.map.map[coordinates[0]][coordinates[1]].empty) {
-                realMap.map.map[coordinates[0]][
-                    coordinates[1]
-                ].sprite.destroy();
-                realMap.map.map[coordinates[0]][coordinates[1]].empty = true;
-            }
-        }
+        });
     }
 
     public addToMap(
         mapOrId: IGraphicMap | string,
-        sprites: { sprite: ISpriteForMap; x: number; y: number}[]
+        sprites: { sprite: ISpriteForMap; x: number; y: number }[]
     ) {
         let map: IGraphicMap;
 
@@ -628,6 +631,8 @@ window.onload = () => {
                             y: 2
                         }
                     ]);
+
+                    game.removeFromMap("map2", [[0,0], [0,1]]);
                 }, 2000);
             }
         );

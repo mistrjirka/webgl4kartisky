@@ -192,20 +192,20 @@ var KartiskyGL = /** @class */ (function () {
         };
         this.maps.push({ map: value, id: map.id });
     };
-    KartiskyGL.prototype.removeFromMap = function (map, coordinates) {
-        if (typeof map === "object") {
+    KartiskyGL.prototype.removeFromMap = function (mapOrId, coordinatesArray) {
+        var map;
+        if (typeof mapOrId === "object") {
+            map = mapOrId;
+        }
+        else {
+            map = this.getMapById(mapOrId).map;
+        }
+        coordinatesArray.forEach(function (coordinates) {
             if (!map.map[coordinates[0]][coordinates[1]].empty) {
                 map.map[coordinates[0]][coordinates[1]].sprite.destroy();
                 map.map[coordinates[0]][coordinates[1]].empty = true;
             }
-        }
-        else {
-            var realMap = this.getMapById(map);
-            if (!realMap.map.map[coordinates[0]][coordinates[1]].empty) {
-                realMap.map.map[coordinates[0]][coordinates[1]].sprite.destroy();
-                realMap.map.map[coordinates[0]][coordinates[1]].empty = true;
-            }
-        }
+        });
     };
     KartiskyGL.prototype.addToMap = function (mapOrId, sprites) {
         var map;
@@ -412,6 +412,7 @@ window.onload = function () {
                         y: 2
                     }
                 ]);
+                game.removeFromMap("map2", [[0, 0], [0, 1]]);
             }, 2000);
         });
     }, 2000);
