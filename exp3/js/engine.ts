@@ -73,6 +73,8 @@ interface cardBox {
         width: number;
         height: number;
     };
+    overlapWidth: number;
+    overlapHeight: number;
     stackingAfterOverflow: boolean;
     background: IBackground;
 }
@@ -159,6 +161,7 @@ class KartiskyGL {
         }
     }
 
+    private render() {}
     private preload() {
         var phaser = this;
         this.spriteLoading.forEach(function(element) {
@@ -196,8 +199,7 @@ class KartiskyGL {
     }
 
     public load(sprites: ISprite_loading, callback: any) {
-        var game = this.game;
-        var loader = new Phaser.Loader(game);
+        var loader = new Phaser.Loader(this.game);
 
         function afterLoad() {
             loader.start();
@@ -231,278 +233,279 @@ class KartiskyGL {
             }
         });
     }
-
-    public createSprite(sprites: ISprite_create) {
-        var phaser = this;
-
-        var value: Array<Phaser.Sprite> = [];
-
-        sprites.forEach(function(element, index) {
-            if (
-                typeof element.x === "number" &&
-                typeof element.y === "number"
-            ) {
-                value.push(
-                    phaser.game.add.sprite(element.x, element.y, element.name)
-                );
-            } else {
-                value.push(
-                    phaser.game.add.sprite(
-                        phaser.game.world.centerX,
-                        phaser.game.world.centerY,
-                        element.name
-                    )
-                );
-            }
-
-            if (typeof element.scale !== "undefined") {
-                value[value.length - 1].width = element.scale.width;
-                value[value.length - 1].height = element.scale.height;
-            }
-
-            value[value.length - 1].anchor.setTo(element[0], element[1]);
-
-            phaser.sprites.push({
-                sprite: value[value.length - 1],
-                id: element.id
-            });
-        });
-        return value;
-    }
-
-    public createImage(image: IImage) {
-        var game = this;
-
-        var value: Array<Phaser.Image> = [];
-
-        image.forEach(function(element, index) {
-            if (
-                typeof element.x === "number" &&
-                typeof element.y === "number"
-            ) {
-                value.push(
-                    game.game.add.image(element.x, element.y, element.name)
-                );
-            } else {
-                value.push(
-                    game.game.add.image(
-                        game.game.world.centerX,
-                        game.game.world.centerY,
-                        element.name
-                    )
-                );
-            }
-            console.log(element.scale);
-            if (typeof element.scale !== "undefined") {
-                value[value.length - 1].width = element.scale.width;
-                value[value.length - 1].height = element.scale.height;
-            }
-
-            value[value.length - 1].anchor.setTo(element[0], element[1]);
-            game.images.push({
-                image: value[value.length - 1],
-                id: element.id
-            });
-        });
-
-        return value;
-    }
-
-    public renderMap(map: IMap_for_rendering) {
-        let background = this.renderBackground(map.background, {
-            width: map.map.length * map.x_size,
-            height: map.map[0].length * map.y_size
-        });
-
-        var value: IGraphicMap;
-
-        var tmpMap = [];
-        map.map.forEach(function(elementx, index) {
-            tmpMap[index] = [];
-            elementx.forEach((elementy, indey) => {
-                tmpMap[index].push({ sprite: undefined, empty: true });
-            });
-        });
-
-        for (var x = 0; x < map.map.length; x++) {
-            for (var y = 0; y < map.map[x].length; y++) {
-                if (!map.map[x][y].empty) {
-                    var configOfSprite: ISprite_create = [
-                        {
-                            id: map.map[x][y].card.sprite.id,
-                            name: map.map[x][y].card.sprite.name,
-                            anchor: map.map[x][y].card.sprite.anchor,
-                            x: map.x + x * map.x_size,
-                            y: map.y + y * map.y_size
-                        }
-                    ];
-
-                    if (map.map[x][y].card.sprite.typeOfScale === "automatic") {
-                        configOfSprite[0].scale = {
-                            width: 0,
-                            height: 0
-                        };
-                        configOfSprite[0].scale.width = map.x_size;
-                        configOfSprite[0].scale.height = map.y_size;
-                    } else if (
-                        map.map[x][y].card.sprite.typeOfScale === "manual" &&
-                        typeof map.map[x][y].card.sprite.scale !== "undefined"
-                    ) {
-                        configOfSprite[0].scale = {
-                            width: 0,
-                            height: 0
-                        };
-                        configOfSprite[0].scale.width =
-                            map.map[x][y].card.sprite.scale.width;
-                        configOfSprite[0].scale.height =
-                            map.map[x][y].card.sprite.scale.height;
-                    }
-
-                    let finalSprite = this.createSprite(configOfSprite);
-                    tmpMap[x][y] = { sprite: finalSprite[0], empty: false };
-                }
-            }
+    static Render = class {
+        
+        game: Phaser.Game;
+        
+        constructor(game: Phaser.Game){
+            this.game = game;
         }
 
-        value = {
-            x: map.x,
-            y: map.y,
-            x_size: map.x_size,
-            y_size: map.y_size,
-            background: background,
-            map: tmpMap
+        public createSprite(sprites: ISprite_create) {
+            var phaser = this;
+
+            var value: Array<Phaser.Sprite> = [];
+
+            sprites.forEach(function(element, index) {
+                if (
+                    typeof element.x === "number" &&
+                    typeof element.y === "number"
+                ) {
+                    value.push(
+                        phaser.game.add.sprite(
+                            element.x,
+                            element.y,
+                            element.name
+                        )
+                    );
+                } else {
+                    value.push(
+                        phaser.game.add.sprite(
+                            phaser.game.world.centerX,
+                            phaser.game.world.centerY,
+                            element.name
+                        )
+                    );
+                }
+
+                if (typeof element.scale !== "undefined") {
+                    value[value.length - 1].width = element.scale.width;
+                    value[value.length - 1].height = element.scale.height;
+                }
+
+                value[value.length - 1].anchor.setTo(element[0], element[1]);
+            });
+            return value;
+        }
+
+        public createImage(image: IImage) {
+            var game = this;
+
+            var value: Array<Phaser.Image> = [];
+
+            image.forEach(function(element, index) {
+                if (
+                    typeof element.x === "number" &&
+                    typeof element.y === "number"
+                ) {
+                    value.push(
+                        game.game.add.image(element.x, element.y, element.name)
+                    );
+                } else {
+                    value.push(
+                        game.game.add.image(
+                            game.game.world.centerX,
+                            game.game.world.centerY,
+                            element.name
+                        )
+                    );
+                }
+                console.log(element.scale);
+                if (typeof element.scale !== "undefined") {
+                    value[value.length - 1].width = element.scale.width;
+                    value[value.length - 1].height = element.scale.height;
+                }
+
+                value[value.length - 1].anchor.setTo(element[0], element[1]);
+            });
+
+            return value;
+        }
+
+        public renderBackground(
+            background: IBackground,
+            scale?: {
+                width: number;
+                height: number;
+            }
+        ) {
+            let image: Phaser.Image;
+            if (typeof scale != "undefined") {
+                image = this.createImage([
+                    {
+                        x: background.x,
+                        y: background.y,
+                        name: background.name,
+                        anchor: [1, 1],
+                        id: background.id,
+                        scale: {
+                            width: scale.width,
+                            height: scale.height
+                        }
+                    }
+                ])[0];
+            } else {
+                image = this.createImage([
+                    {
+                        x: background.x,
+                        y: background.y,
+                        id: background.id,
+                        name: background.name,
+                        anchor: [1, 1]
+                    }
+                ])[0];
+            }
+            return image;
+        }
+    };
+
+    static Map = class extends KartiskyGL.Render {
+        map: {
+            map: { sprite: undefined | Phaser.Sprite; empty: boolean }[][];
+            x: number;
+            y: number;
+            x_size: number;
+            y_size: number;
+            background: Phaser.Image;
         };
 
-        this.maps.push({ map: value, id: map.id });
-    }
+        constructor(game: Phaser.Game, map: IMap_for_rendering) {
+            super(game);
+            let background = this.renderBackground(map.background, {
+                width: map.map.length * map.x_size,
+                height: map.map[0].length * map.y_size
+            });
 
-    public removeFromMap(map: IGraphicMap | string, coordinates: number[]) {
-        if (typeof map === "object") {
-            if (!map.map[coordinates[0]][coordinates[1]].empty) {
-                map.map[coordinates[0]][coordinates[1]].sprite.destroy();
-                map.map[coordinates[0]][coordinates[1]].empty = true;
-            }
-        } else {
-            let realMap = this.getMapById(map);
-            if (!realMap.map.map[coordinates[0]][coordinates[1]].empty) {
-                realMap.map.map[coordinates[0]][
-                    coordinates[1]
-                ].sprite.destroy();
-                realMap.map.map[coordinates[0]][coordinates[1]].empty = true;
-            }
-        }
-    }
+            var value: IGraphicMap;
 
-    public addToMap(
-        mapOrId: IGraphicMap | string,
-        sprites: { sprite: ISpriteForMap; x: number; y: number}[]
-    ) {
-        let map: IGraphicMap;
+            var tmpMap: {
+                sprite: undefined | Phaser.Sprite;
+                empty: boolean;
+            }[][] = [];
+            map.map.forEach(function(elementx, index) {
+                tmpMap[index] = [];
+                elementx.forEach((elementy, indey) => {
+                    tmpMap[index].push({ sprite: undefined, empty: true });
+                });
+            });
 
-        let toCreate: ISprite_create = [];
+            this.removeFromMap.bind(this);
+            this.addToMap.bind(this);
 
-        if (typeof mapOrId === "string") {
-            map = this.getMapById(mapOrId).map;
-        } else {
-            map = mapOrId;
-        }
+            for (var x = 0; x < map.map.length; x++) {
+                for (var y = 0; y < map.map[x].length; y++) {
+                    if (!map.map[x][y].empty) {
+                        var configOfSprite: ISprite_create = [
+                            {
+                                id: map.map[x][y].card.sprite.id,
+                                name: map.map[x][y].card.sprite.name,
+                                anchor: map.map[x][y].card.sprite.anchor,
+                                x: map.x + x * map.x_size,
+                                y: map.y + y * map.y_size
+                            }
+                        ];
 
-        sprites.forEach(sprite => {
-            let x: number = sprite.x * map.x_size + map.x;
-            let y: number = sprite.y * map.x_size + map.y;
+                        if (
+                            map.map[x][y].card.sprite.typeOfScale ===
+                            "automatic"
+                        ) {
+                            configOfSprite[0].scale = {
+                                width: 0,
+                                height: 0
+                            };
+                            configOfSprite[0].scale.width = map.x_size;
+                            configOfSprite[0].scale.height = map.y_size;
+                        } else if (
+                            map.map[x][y].card.sprite.typeOfScale ===
+                                "manual" &&
+                            typeof map.map[x][y].card.sprite.scale !==
+                                "undefined"
+                        ) {
+                            configOfSprite[0].scale = {
+                                width: 0,
+                                height: 0
+                            };
+                            configOfSprite[0].scale.width =
+                                map.map[x][y].card.sprite.scale.width;
+                            configOfSprite[0].scale.height =
+                                map.map[x][y].card.sprite.scale.height;
+                        }
 
-            let spriteConfig = {
-                id: sprite.sprite.id,
-                name: sprite.sprite.name,
-                anchor: sprite.sprite.anchor,
-                x: x,
-                y: y,
-                scale: {
-                    width: 0,
-                    height: 0
-                }
-            };
-
-            if (sprite.sprite.typeOfScale === "automatic") {
-                spriteConfig.scale.width = map.x_size;
-                spriteConfig.scale.height = map.y_size;
-            } else if (
-                sprite.sprite.typeOfScale === "manual" &&
-                typeof sprite.sprite.scale !== "undefined"
-            ) {
-                spriteConfig.scale = {
-                    width: 0,
-                    height: 0
-                };
-                spriteConfig.scale.width = sprite.sprite.scale.width;
-                spriteConfig.scale.height = sprite.sprite.scale.height;
-            }
-
-            toCreate.push(spriteConfig);
-        });
-
-        this.createSprite(toCreate);
-    }
-
-    public createCardbox(config: cardBox) {
-        this.renderBackground(config.background, {
-            width: config.width,
-            height: config.height
-        });
-    }
-
-    public addToCardBox() {}
-    public removeFromCardBox() {}
-
-    private renderBackground(
-        background: IBackground,
-        scale?: {
-            width: number;
-            height: number;
-        }
-    ) {
-        let image: Phaser.Image;
-        if (typeof scale != "undefined") {
-            image = this.createImage([
-                {
-                    x: background.x,
-                    y: background.y,
-                    name: background.name,
-                    anchor: [1, 1],
-                    id: background.id,
-                    scale: {
-                        width: scale.width,
-                        height: scale.height
+                        let finalSprite = this.createSprite(configOfSprite);
+                        tmpMap[x][y] = { sprite: finalSprite[0], empty: false };
                     }
                 }
-            ])[0];
-        } else {
-            image = this.createImage([
-                {
-                    x: background.x,
-                    y: background.y,
-                    id: background.id,
-                    name: background.name,
-                    anchor: [1, 1]
-                }
-            ])[0];
+            }
+
+            this.map = {
+                x: map.x,
+                y: map.y,
+                x_size: map.x_size,
+                y_size: map.y_size,
+                background: background,
+                map: tmpMap
+            };
         }
-        return image;
-    }
 
-    public getSpriteById(id: string) {
-        return this.sprites.find(obj => {
-            return obj.id === id;
-        });
-    }
+        public removeFromMap(coordinates: { x: number; y: number }[]) {
+            var map = this.map.map;
+            coordinates.forEach(function(element) {
+                if (!map[element.x][element.y].empty) {
+                    map[element.x][element.y].sprite.destroy();
+                    map[element.x][element.y].empty = true;
+                }
+            });
+        }
 
-    public getMapById(id: string) {
-        return this.maps.find(obj => {
-            return obj.id === id;
-        });
-    }
+        public addToMap(
+            sprites: { sprite: ISpriteForMap; x: number; y: number }[]
+        ) {
+            let map: IGraphicMap;
 
-    private render() {}
+            let toCreate: ISprite_create = [];
+
+            map = this.map;
+
+            sprites.forEach(sprite => {
+                let x: number = sprite.x * map.x_size + map.x;
+                let y: number = sprite.y * map.x_size + map.y;
+
+                let spriteConfig = {
+                    id: sprite.sprite.id,
+                    name: sprite.sprite.name,
+                    anchor: sprite.sprite.anchor,
+                    x: x,
+                    y: y,
+                    scale: {
+                        width: 0,
+                        height: 0
+                    }
+                };
+
+                if (sprite.sprite.typeOfScale === "automatic") {
+                    spriteConfig.scale.width = map.x_size;
+                    spriteConfig.scale.height = map.y_size;
+                } else if (
+                    sprite.sprite.typeOfScale === "manual" &&
+                    typeof sprite.sprite.scale !== "undefined"
+                ) {
+                    spriteConfig.scale = {
+                        width: 0,
+                        height: 0
+                    };
+                    spriteConfig.scale.width = sprite.sprite.scale.width;
+                    spriteConfig.scale.height = sprite.sprite.scale.height;
+                }
+
+                toCreate.push(spriteConfig);
+            });
+
+            this.createSprite(toCreate);
+        }
+    };
+
+    static Cardbox = class extends KartiskyGL.Render {
+        constructor(game: Phaser.Game, config: cardBox) {
+            super(game);
+            this.renderBackground(config.background, {
+                width: config.width,
+                height: config.height
+            });
+        }
+
+        public addToCardBox() {}
+        public removeFromCardBox() {}
+    };
 }
 
 window.onload = () => {
@@ -604,9 +607,9 @@ window.onload = () => {
                 }
             ],
             function() {
-                game.renderMap(exampleMap);
+                var map = new KartiskyGL.Map(game.game, exampleMap);
                 setTimeout(function() {
-                    game.addToMap(game.getMapById("map2").map, [
+                    map.addToMap([
                         {
                             sprite: {
                                 id: "varsd2",
@@ -628,6 +631,7 @@ window.onload = () => {
                             y: 2
                         }
                     ]);
+                    map.removeFromMap([{x: 0, y: 0}]);
                 }, 2000);
             }
         );
