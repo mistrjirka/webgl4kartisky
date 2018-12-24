@@ -241,61 +241,12 @@ var KartiskyGL = /** @class */ (function () {
             };
             return _this;
         }
-<<<<<<< HEAD:exp3/js/engine.js
         class_2.prototype.removeFromMap = function (coordinates) {
             var map = this.map.map;
             coordinates.forEach(function (element) {
                 if (!map[element.x][element.y].empty) {
                     map[element.x][element.y].sprite.destroy();
                     map[element.x][element.y].empty = true;
-=======
-        value = {
-            x: map.x,
-            y: map.y,
-            x_size: map.x_size,
-            y_size: map.y_size,
-            background: background,
-            map: tmpMap
-        };
-        this.maps.push({ map: value, id: map.id });
-    };
-    KartiskyGL.prototype.removeFromMap = function (mapOrId, coordinatesArray) {
-        var map;
-        if (typeof mapOrId === "object") {
-            map = mapOrId;
-        }
-        else {
-            map = this.getMapById(mapOrId).map;
-        }
-        coordinatesArray.forEach(function (coordinates) {
-            if (!map.map[coordinates[0]][coordinates[1]].empty) {
-                map.map[coordinates[0]][coordinates[1]].sprite.destroy();
-                map.map[coordinates[0]][coordinates[1]].empty = true;
-            }
-        });
-    };
-    KartiskyGL.prototype.addToMap = function (mapOrId, sprites) {
-        var map;
-        var toCreate = [];
-        if (typeof mapOrId === "string") {
-            map = this.getMapById(mapOrId).map;
-        }
-        else {
-            map = mapOrId;
-        }
-        sprites.forEach(function (sprite) {
-            var x = sprite.x * map.x_size + map.x;
-            var y = sprite.y * map.x_size + map.y;
-            var spriteConfig = {
-                id: sprite.sprite.id,
-                name: sprite.sprite.name,
-                anchor: sprite.sprite.anchor,
-                x: x,
-                y: y,
-                scale: {
-                    width: 0,
-                    height: 0
->>>>>>> 949ee0b04164bbf6add131ac2ce229a631c0dd10:js/engine.js
                 }
             });
         };
@@ -466,11 +417,7 @@ window.onload = function () {
                         y: 2
                     }
                 ]);
-<<<<<<< HEAD:exp3/js/engine.js
                 map.removeFromMap([{ x: 0, y: 0 }]);
-=======
-                game.removeFromMap("map2", [[0, 0], [0, 1]]);
->>>>>>> 949ee0b04164bbf6add131ac2ce229a631c0dd10:js/engine.js
             }, 2000);
         });
     }, 2000);
