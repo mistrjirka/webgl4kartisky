@@ -197,7 +197,6 @@ var KartiskyGL = /** @class */ (function () {
                     if (!map.map[x][y].empty) {
                         var configOfSprite = [
                             {
-                                id: map.map[x][y].card.sprite.id,
                                 name: map.map[x][y].card.sprite.name,
                                 anchor: map.map[x][y].card.sprite.anchor,
                                 x: map.x + x * map.x_size,
@@ -258,7 +257,6 @@ var KartiskyGL = /** @class */ (function () {
                 var x = sprite.x * map.x_size + map.x;
                 var y = sprite.y * map.x_size + map.y;
                 var spriteConfig = {
-                    id: sprite.sprite.id,
                     name: sprite.sprite.name,
                     anchor: sprite.sprite.anchor,
                     x: x,
@@ -295,10 +293,46 @@ var KartiskyGL = /** @class */ (function () {
                 width: config.width,
                 height: config.height
             });
+            _this.cards = _this.make2DArray(config.numOfCardsX, config.numOfCardsY);
             return _this;
         }
-        class_3.prototype.addToCardBox = function () { };
-        class_3.prototype.removeFromCardBox = function () { };
+        class_3.prototype.make2DArray = function (d1, d2) {
+            var arr = new Array(d1), i, l;
+            for (i = 0, l = d2; i < l; i++) {
+                arr[i] = new Array(d1);
+            }
+            return arr;
+        };
+        class_3.prototype.addToCardBox = function (card, position) {
+            var place;
+            if (typeof position === "undefined") {
+                var done = false;
+                for (var x = this.cards.length; x++;) {
+                    for (var y = 0; y < this.cards[x].length; y++) {
+                        if (typeof this.cards[x][y] === "undefined")
+                            place = [x, y];
+                        done = true;
+                        break;
+                    }
+                }
+            }
+            else {
+                place = [position.x, position.y];
+            }
+            if (done) {
+                this.stacking();
+            }
+            else {
+                this.cards[place[0]][place[1]] = this.createSprite([card])[0];
+            }
+        };
+        class_3.prototype.removeFromCardBox = function (position) {
+            if (typeof this.cards[position.x][position.y] !== "undefined") {
+                this.cards[position.x][position.y].destroy();
+                this.cards[position.x][position.y] = undefined;
+            }
+        };
+        class_3.prototype.stacking = function () { };
         return class_3;
     }(KartiskyGL.Render));
     return KartiskyGL;
@@ -335,7 +369,6 @@ window.onload = function () {
                     empty: false,
                     card: {
                         sprite: {
-                            id: "car",
                             name: "car",
                             anchor: [0, 0],
                             typeOfScale: "automatic"
@@ -361,7 +394,6 @@ window.onload = function () {
                     empty: false,
                     card: {
                         sprite: {
-                            id: "var2",
                             name: "car",
                             anchor: [0.1, 0.1],
                             typeOfScale: "automatic"
@@ -398,7 +430,6 @@ window.onload = function () {
                 map.addToMap([
                     {
                         sprite: {
-                            id: "varsd2",
                             name: "car",
                             anchor: [0.1, 0.1],
                             typeOfScale: "automatic"
@@ -408,7 +439,6 @@ window.onload = function () {
                     },
                     {
                         sprite: {
-                            id: "varsdsad2",
                             name: "car",
                             anchor: [0.1, 0.1],
                             typeOfScale: "automatic"

@@ -22,7 +22,6 @@ type Image = {
 };
 
 type Sprite = {
-    id: string;
     name: string;
     anchor: number[];
     x?: number;
@@ -59,7 +58,6 @@ interface IGraphicMap {
 }
 
 interface IBackground extends Image {
-    id: string;
     autoScale: boolean;
 }
 
@@ -77,6 +75,8 @@ interface cardBox {
     overlapHeight: number;
     stackingAfterOverflow: boolean;
     background: IBackground;
+    numOfCardsX: number;
+    numOfCardsY: number;
 }
 
 interface IMap_for_rendering {
@@ -234,10 +234,9 @@ class KartiskyGL {
         });
     }
     static Render = class {
-        
         game: Phaser.Game;
-        
-        constructor(game: Phaser.Game){
+
+        constructor(game: Phaser.Game) {
             this.game = game;
         }
 
@@ -387,7 +386,6 @@ class KartiskyGL {
                     if (!map.map[x][y].empty) {
                         var configOfSprite: ISprite_create = [
                             {
-                                id: map.map[x][y].card.sprite.id,
                                 name: map.map[x][y].card.sprite.name,
                                 anchor: map.map[x][y].card.sprite.anchor,
                                 x: map.x + x * map.x_size,
@@ -461,7 +459,6 @@ class KartiskyGL {
                 let y: number = sprite.y * map.x_size + map.y;
 
                 let spriteConfig = {
-                    id: sprite.sprite.id,
                     name: sprite.sprite.name,
                     anchor: sprite.sprite.anchor,
                     x: x,
@@ -495,16 +492,73 @@ class KartiskyGL {
     };
 
     static Cardbox = class extends KartiskyGL.Render {
+        width: number;
+        height: number;
+
+        x: number;
+        y: number;
+
+        x_size: number;
+        y_size: number;
+
+        cards: Array<Array<Phaser.Image | undefined>>;
+
         constructor(game: Phaser.Game, config: cardBox) {
             super(game);
             this.renderBackground(config.background, {
                 width: config.width,
                 height: config.height
             });
+
+            this.cards = this.make2DArray(
+                config.numOfCardsX,
+                config.numOfCardsY
+            );
         }
 
-        public addToCardBox() {}
-        public removeFromCardBox() {}
+        private make2DArray(d1, d2) {
+            var arr = new Array(d1),
+                i,
+                l;
+            for (i = 0, l = d2; i < l; i++) {
+                arr[i] = new Array(d1);
+            }
+            return arr;
+        }
+
+        public addToCardBox(card: Sprite, position?: { x: number; y: number }) {
+            var place: number[];
+
+            if (typeof position === "undefined") {
+                var done: boolean = false;
+
+                for (var x: number = this.cards.length; x++; ) {
+                    for (var y: number = 0; y < this.cards[x].length; y++) {
+                        if (typeof this.cards[x][y] === "undefined")
+                            place = [x, y];
+                        done = true;
+                        break;
+                    }
+                }
+            } else {
+                place = [position.x, position.y];
+            }
+
+            if (done) {
+                this.stacking();
+            } else {
+                this.cards[place[0]][place[1]] = this.createSprite([card])[0];
+            }
+        }
+
+        public removeFromCardBox(position: { x: number; y: number }) {
+            if(typeof this.cards[position.x][position.y] !== "undefined"){
+                this.cards[position.x][position.y].destroy();
+                this.cards[position.x][position.y] = undefined;
+            }
+        }
+
+        private stacking() {}
     };
 }
 
@@ -547,7 +601,6 @@ window.onload = () => {
                     empty: false,
                     card: {
                         sprite: {
-                            id: "car",
                             name: "car",
                             anchor: [0, 0],
                             typeOfScale: "automatic"
@@ -573,7 +626,6 @@ window.onload = () => {
                     empty: false,
                     card: {
                         sprite: {
-                            id: "var2",
                             name: "car",
                             anchor: [0.1, 0.1],
                             typeOfScale: "automatic"
@@ -612,7 +664,6 @@ window.onload = () => {
                     map.addToMap([
                         {
                             sprite: {
-                                id: "varsd2",
                                 name: "car",
                                 anchor: [0.1, 0.1],
                                 typeOfScale: "automatic"
@@ -622,7 +673,6 @@ window.onload = () => {
                         },
                         {
                             sprite: {
-                                id: "varsdsad2",
                                 name: "car",
                                 anchor: [0.1, 0.1],
                                 typeOfScale: "automatic"
@@ -631,7 +681,7 @@ window.onload = () => {
                             y: 2
                         }
                     ]);
-                    map.removeFromMap([{x: 0, y: 0}]);
+                    map.removeFromMap([{ x: 0, y: 0 }]);
                 }, 2000);
             }
         );
