@@ -10,7 +10,6 @@ type LoadingForm = {
 };
 
 type Image = {
-    id: string;
     name: string;
     x?: number;
     y?: number;
@@ -326,7 +325,6 @@ class KartiskyGL {
                         y: background.y,
                         name: background.name,
                         anchor: [1, 1],
-                        id: background.id,
                         scale: {
                             width: scale.width,
                             height: scale.height
@@ -338,7 +336,6 @@ class KartiskyGL {
                     {
                         x: background.x,
                         y: background.y,
-                        id: background.id,
                         name: background.name,
                         anchor: [1, 1]
                     }
@@ -501,6 +498,9 @@ class KartiskyGL {
         x_size: number;
         y_size: number;
 
+        overlapWidth: number;
+        overlapHeight: number;
+
         cards: Array<Array<Phaser.Image | undefined>>;
 
         constructor(game: Phaser.Game, config: cardBox) {
@@ -514,6 +514,13 @@ class KartiskyGL {
                 config.numOfCardsX,
                 config.numOfCardsY
             );
+
+            this.x = config.x;
+            this.y = config.y;
+            this.x_size = config.card_size.width;
+            this.y_size = config.card_size.height;
+            this.overlapHeight = config.overlapHeight;
+            this.overlapWidth = config.overlapWidth;
         }
 
         private make2DArray(d1, d2) {
@@ -532,27 +539,32 @@ class KartiskyGL {
             if (typeof position === "undefined") {
                 var done: boolean = false;
 
-                for (var x: number = this.cards.length; x++; ) {
+                for (var x: number = 0; x < this.cards.length; x++) {
                     for (var y: number = 0; y < this.cards[x].length; y++) {
-                        if (typeof this.cards[x][y] === "undefined")
-                            place = [x, y];
-                        done = true;
-                        break;
+                        if (typeof this.cards[x][y] === "undefined") {
+                            place = [y, x];
+                            done = true;
+                            break;
+                        }
                     }
+
+                    if(done) break;
                 }
             } else {
                 place = [position.x, position.y];
             }
 
-            if (done) {
+            if (!done) {
                 this.stacking();
             } else {
+                card.x = this.x + (this.x_size - this.overlapWidth) * place[0];
+                card.y = this.y + (this.y_size - this.overlapHeight) * place[1];
                 this.cards[place[0]][place[1]] = this.createSprite([card])[0];
             }
         }
 
         public removeFromCardBox(position: { x: number; y: number }) {
-            if(typeof this.cards[position.x][position.y] !== "undefined"){
+            if (typeof this.cards[position.x][position.y] !== "undefined") {
                 this.cards[position.x][position.y].destroy();
                 this.cards[position.x][position.y] = undefined;
             }
@@ -641,7 +653,6 @@ window.onload = () => {
         y_size: 100,
         background: {
             anchor: [1, 1],
-            id: "background2",
             autoScale: true,
             x: 0,
             y: 0,
@@ -682,6 +693,46 @@ window.onload = () => {
                         }
                     ]);
                     map.removeFromMap([{ x: 0, y: 0 }]);
+                    var cardBox = new KartiskyGL.Cardbox(game.game, {
+                        x: 300,
+                        y: 400,
+                        width: 200,
+                        height: 400,
+                        anchor: [0, 0],
+                        card_size: {
+                            width: 100,
+                            height: 100
+                        },
+                        overlapHeight: 2,
+                        overlapWidth: 2,
+                        stackingAfterOverflow: true,
+                        background: {
+                            anchor: [1, 1],
+                            autoScale: true,
+                            x: 300,
+                            y: 400,
+                            name: "redBackground"
+                        },
+                        numOfCardsX: 3,
+                        numOfCardsY: 4
+                    });
+
+                    cardBox.addToCardBox({
+                        name: "car",
+                        anchor: [0, 0],
+                        scale: {
+                            width: 100,
+                            height:100
+                        }
+                    });
+                    cardBox.addToCardBox({
+                        name: "car",
+                        anchor: [0, 0],
+                        scale: {
+                            width: 100,
+                            height:100
+                        }
+                    });
                 }, 2000);
             }
         );

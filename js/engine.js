@@ -151,7 +151,6 @@ var KartiskyGL = /** @class */ (function () {
                         y: background.y,
                         name: background.name,
                         anchor: [1, 1],
-                        id: background.id,
                         scale: {
                             width: scale.width,
                             height: scale.height
@@ -164,7 +163,6 @@ var KartiskyGL = /** @class */ (function () {
                     {
                         x: background.x,
                         y: background.y,
-                        id: background.id,
                         name: background.name,
                         anchor: [1, 1]
                     }
@@ -294,6 +292,12 @@ var KartiskyGL = /** @class */ (function () {
                 height: config.height
             });
             _this.cards = _this.make2DArray(config.numOfCardsX, config.numOfCardsY);
+            _this.x = config.x;
+            _this.y = config.y;
+            _this.x_size = config.card_size.width;
+            _this.y_size = config.card_size.height;
+            _this.overlapHeight = config.overlapHeight;
+            _this.overlapWidth = config.overlapWidth;
             return _this;
         }
         class_3.prototype.make2DArray = function (d1, d2) {
@@ -307,22 +311,27 @@ var KartiskyGL = /** @class */ (function () {
             var place;
             if (typeof position === "undefined") {
                 var done = false;
-                for (var x = this.cards.length; x++;) {
+                for (var x = 0; x < this.cards.length; x++) {
                     for (var y = 0; y < this.cards[x].length; y++) {
-                        if (typeof this.cards[x][y] === "undefined")
-                            place = [x, y];
-                        done = true;
-                        break;
+                        if (typeof this.cards[x][y] === "undefined") {
+                            place = [y, x];
+                            done = true;
+                            break;
+                        }
                     }
+                    if (done)
+                        break;
                 }
             }
             else {
                 place = [position.x, position.y];
             }
-            if (done) {
+            if (!done) {
                 this.stacking();
             }
             else {
+                card.x = this.x + (this.x_size - this.overlapWidth) * place[0];
+                card.y = this.y + (this.y_size - this.overlapHeight) * place[1];
                 this.cards[place[0]][place[1]] = this.createSprite([card])[0];
             }
         };
@@ -409,7 +418,6 @@ window.onload = function () {
         y_size: 100,
         background: {
             anchor: [1, 1],
-            id: "background2",
             autoScale: true,
             x: 0,
             y: 0,
@@ -448,6 +456,45 @@ window.onload = function () {
                     }
                 ]);
                 map.removeFromMap([{ x: 0, y: 0 }]);
+                var cardBox = new KartiskyGL.Cardbox(game.game, {
+                    x: 300,
+                    y: 400,
+                    width: 200,
+                    height: 400,
+                    anchor: [0, 0],
+                    card_size: {
+                        width: 100,
+                        height: 100
+                    },
+                    overlapHeight: 2,
+                    overlapWidth: 2,
+                    stackingAfterOverflow: true,
+                    background: {
+                        anchor: [1, 1],
+                        autoScale: true,
+                        x: 300,
+                        y: 400,
+                        name: "redBackground"
+                    },
+                    numOfCardsX: 3,
+                    numOfCardsY: 4
+                });
+                cardBox.addToCardBox({
+                    name: "car",
+                    anchor: [0, 0],
+                    scale: {
+                        width: 100,
+                        height: 100
+                    }
+                });
+                cardBox.addToCardBox({
+                    name: "car",
+                    anchor: [0, 0],
+                    scale: {
+                        width: 100,
+                        height: 100
+                    }
+                });
             }, 2000);
         });
     }, 2000);
