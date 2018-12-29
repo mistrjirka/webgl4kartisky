@@ -1,0 +1,17 @@
+{
+    "width": 250,
+    "height": 400,
+    "hero": {
+        "x": 20,
+        "y": 25,
+        "width": 210,
+        "height": 166
+    },
+    "text": {
+        "y": 210,
+        "x": 20,
+        "width": 210,
+        "height": 166
+    },
+    "name": "karta.png"
+}
