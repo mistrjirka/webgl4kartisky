@@ -19,12 +19,16 @@ var KartiskyGL = /** @class */ (function () {
     function KartiskyGL(div, rendering, spriteLoading, toCreate, width, height) {
         if (width === void 0) { width = 1280; }
         if (height === void 0) { height = 720; }
+        this.spriteLoading = [];
+        this.toCreate = [];
+        this.mapIndex = [];
         this.sprites = [];
         this.maps = [];
         this.images = [];
+        this.load.bind(this);
         var settingsForPhaser = {
-            preload: this.preload,
-            create: this.create,
+            preload: this.preload.bind(this),
+            create: this.create.bind(this),
             render: this.render.bind(this),
             spriteLoading: spriteLoading,
             toCreate: toCreate
@@ -52,13 +56,13 @@ var KartiskyGL = /** @class */ (function () {
         var phaser = this;
         this.toCreate.forEach(function (element) {
             if (element.x && element.y) {
-                this.sprites.push({
+                phaser.sprites.push({
                     sprite: phaser.game.add.sprite(element.x, element.y, element.name),
                     id: this.toCreate.id
                 });
             }
             else {
-                this.sprites.push({
+                phaser.sprites.push({
                     sprite: phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name),
                     id: this.toCreate.id
                 });
@@ -67,6 +71,7 @@ var KartiskyGL = /** @class */ (function () {
         });
     };
     KartiskyGL.prototype.load = function (sprites, callback) {
+        console.log(this);
         var loader = new Phaser.Loader(this.game);
         function afterLoad() {
             loader.start();
@@ -122,6 +127,7 @@ var KartiskyGL = /** @class */ (function () {
             });
             return value;
         };
+        class_1.prototype.createText = function () { };
         class_1.prototype.createImage = function (image) {
             var game = this;
             var value = [];
@@ -309,7 +315,7 @@ var KartiskyGL = /** @class */ (function () {
         };
         class_3.prototype.addToCardBox = function (card, position) {
             var place;
-            if (typeof position === "undefined") {
+            if (position === undefined) {
                 var done = false;
                 for (var x = 0; x < this.cards.length; x++) {
                     for (var y = 0; y < this.cards[x].length; y++) {
@@ -332,9 +338,21 @@ var KartiskyGL = /** @class */ (function () {
                 alert();
             }
             else {
-                card.x = this.x + (this.x_size - this.overlapWidth) * place[1];
-                card.y = this.y + (this.y_size - this.overlapHeight) * place[0];
-                this.cards[place[0]][place[1]] = this.createSprite([card])[0];
+                if (card instanceof Phaser.Sprite) {
+                    card.x =
+                        this.x + (this.x_size - this.overlapWidth) * place[1];
+                    card.y =
+                        this.y + (this.y_size - this.overlapHeight) * place[0];
+                }
+                else {
+                    card.x =
+                        this.x + (this.x_size - this.overlapWidth) * place[1];
+                    card.y =
+                        this.y + (this.y_size - this.overlapHeight) * place[0];
+                    this.cards[place[0]][place[1]] = this.createSprite([
+                        card
+                    ])[0];
+                }
             }
         };
         class_3.prototype.removeFromCardBox = function (position) {

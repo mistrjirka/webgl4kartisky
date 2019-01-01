@@ -20,7 +20,7 @@ type Image = {
     };
 };
 
-type Sprite = {
+type SpriteToCreate = {
     name: string;
     anchor: number[];
     x?: number;
@@ -39,13 +39,21 @@ type CellOfMap = {
     };
 };
 
+type PhaserText = {
+    style: {
+        font: string;
+        fill?: string;
+        wordWrap: boolean;
+    };
+};
+
 interface ISprite_loading extends Array<LoadingForm> {}
 
-interface ISpriteForMap extends Sprite {
+interface ISpriteForMap extends SpriteToCreate {
     typeOfScale?: "automatic" | "manual";
 }
 
-interface ISprite_create extends Array<Sprite> {}
+interface ISprite_create extends Array<SpriteToCreate> {}
 
 interface IGraphicMap {
     map: Array<Array<{ sprite: Phaser.Sprite | undefined; empty: boolean }>>;
@@ -97,11 +105,11 @@ interface IImage extends Array<Image> {}
 class KartiskyGL {
     public game: Phaser.Game;
 
-    public spriteLoading: ISprite_loading;
+    public spriteLoading: ISprite_loading = [];
 
-    public toCreate: ISprite_create;
+    public toCreate: ISprite_create = [];
 
-    public mapIndex: Array<IMap_for_rendering>;
+    public mapIndex: Array<IMap_for_rendering> = [];
 
     public sprites: Array<{
         sprite: Phaser.Sprite;
@@ -126,9 +134,11 @@ class KartiskyGL {
         width = 1280,
         height = 720
     ) {
+        this.load.bind(this);
+
         var settingsForPhaser = {
-            preload: this.preload,
-            create: this.create,
+            preload: this.preload.bind(this),
+            create: this.create.bind(this),
             render: this.render.bind(this),
             spriteLoading: spriteLoading,
             toCreate: toCreate
@@ -176,7 +186,7 @@ class KartiskyGL {
         var phaser = this;
         this.toCreate.forEach(function(element) {
             if (element.x && element.y) {
-                this.sprites.push({
+                phaser.sprites.push({
                     sprite: phaser.game.add.sprite(
                         element.x,
                         element.y,
@@ -185,7 +195,7 @@ class KartiskyGL {
                     id: this.toCreate.id
                 });
             } else {
-                this.sprites.push({
+                phaser.sprites.push({
                     sprite: phaser.game.add.sprite(
                         phaser.game.world.centerX,
                         phaser.game.world.centerY,
@@ -201,7 +211,8 @@ class KartiskyGL {
         });
     }
 
-    public load(sprites: ISprite_loading, callback: any) {
+    public load(sprites: ISprite_loading, callback: Function) {
+        console.log(this);
         var loader = new Phaser.Loader(this.game);
 
         function afterLoad() {
@@ -236,6 +247,7 @@ class KartiskyGL {
             }
         });
     }
+
     static Render = class {
         game: Phaser.Game;
 
@@ -279,6 +291,8 @@ class KartiskyGL {
             });
             return value;
         }
+
+        public createText() {}
 
         public createImage(image: IImage) {
             var game = this;
@@ -537,10 +551,13 @@ class KartiskyGL {
             return arr;
         }
 
-        public addToCardBox(card: Sprite, position?: { x: number; y: number }) {
+        public addToCardBox(
+            card: SpriteToCreate | Phaser.Sprite,
+            position?: { x: number; y: number }
+        ) {
             var place: number[];
 
-            if (typeof position === "undefined") {
+            if (position === undefined) {
                 var done: boolean = false;
 
                 for (var x: number = 0; x < this.cards.length; x++) {
@@ -553,7 +570,7 @@ class KartiskyGL {
                         }
                     }
 
-                    if(done) break;
+                    if (done) break;
                 }
             } else {
                 place = [position.x, position.y];
@@ -563,9 +580,20 @@ class KartiskyGL {
                 this.stacking();
                 alert();
             } else {
-                card.x = this.x + (this.x_size - this.overlapWidth) * place[1];
-                card.y = this.y + (this.y_size - this.overlapHeight) * place[0];
-                this.cards[place[0]][place[1]] = this.createSprite([card])[0];
+                if (card instanceof Phaser.Sprite) {
+                    card.x =
+                        this.x + (this.x_size - this.overlapWidth) * place[1];
+                    card.y =
+                        this.y + (this.y_size - this.overlapHeight) * place[0];
+                } else {
+                    card.x =
+                        this.x + (this.x_size - this.overlapWidth) * place[1];
+                    card.y =
+                        this.y + (this.y_size - this.overlapHeight) * place[0];
+                    this.cards[place[0]][place[1]] = this.createSprite([
+                        card
+                    ])[0];
+                }
             }
         }
 
