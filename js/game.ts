@@ -24,6 +24,10 @@ interface ICardAssemblerPartsKnown {
         font?: string;
         fill?: string;
         align?: string;
+        wordWrapWidth?: number;
+        maxLines?: number;
+        stroke?: string;
+        wordWrap?: boolean;
     };
 }
 
@@ -64,7 +68,7 @@ class Game extends KartiskyGL {
             let toCreate: SpriteToCreate[] = [
                 {
                     name: cardConfig.name,
-                    anchor: [1, 1],
+                    anchor: [0.5, 0.5],
                     x: x,
                     y: y,
                     scale: {
@@ -79,42 +83,51 @@ class Game extends KartiskyGL {
                     case "hero": {
                         if (element.sprite instanceof Phaser.Sprite) {
                             this.hero = element.sprite;
+                            this.hero.x = cardConfig.hero.x;
+                            this.hero.y = cardConfig.hero.y;
+                            this.hero.width = cardConfig.hero.width;
+                            this.hero.height = cardConfig.hero.height;
                         } else if (
                             element.sprite instanceof Object &&
                             !(element.sprite instanceof Array) &&
                             typeof element.sprite !== "string"
                         ) {
                             heroTmp = element.sprite;
+                            heroTmp.x = cardConfig.hero.x;
+                            heroTmp.y = cardConfig.hero.y;
+                            heroTmp.scale = { height: cardConfig.hero.height, width: cardConfig.hero.width };
                         }
                         break;
                     }
                     case "text": {
+                        element.style.wordWrapWidth = cardConfig.text.width;
+                        element.style.wordWrap = true;
                         if (element.sprite instanceof Phaser.Text) {
                             this.text = element.sprite;
-                            this.text.x = x + cardConfig.text.x;
-                            this.text.y = y + cardConfig.text.y;
+                            this.text.x = cardConfig.text.x;
+                            this.text.y = cardConfig.text.y;
                         } else if (
                             typeof element.sprite === "string" ||
                             Array.isArray(element.sprite)
                         ) {
                             if (typeof element.sprite === "string") {
                                 this.text = game.add.text(
-                                    x + cardConfig.text.x + x,
-                                    cardConfig.text.y + y,
+                                    cardConfig.text.x,
+                                    cardConfig.text.y,
                                     element.sprite,
                                     element.style
                                 );
                             } else if (Array.isArray(element.sprite)) {
                                 this.text = game.add.text(
-                                    x + cardConfig.text.x + x,
-                                    cardConfig.text.y + y,
+                                    x + cardConfig.text.x,
+                                    cardConfig.text.y,
                                     "",
                                     element.style
                                 );
                                 this.text.parseList(element.sprite);
                             }
-                            this.text.x = x + cardConfig.text.x;
-                            this.text.y = y + cardConfig.text.y;
+                            this.text.x = cardConfig.text.x;
+                            this.text.y = cardConfig.text.y;
                         }
                         break;
                     }
@@ -130,8 +143,10 @@ class Game extends KartiskyGL {
             tmpRaw.shift();
             this.other = tmpRaw;
             this.hero = this.createSprite([heroTmp])[0];
-            this.card.addChild(this.text);
+            if (this.text !== undefined)
+                this.card.addChild(this.text);
             this.card.addChild(this.hero);
+
         }
     };
 }
@@ -145,33 +160,59 @@ window.onload = () => {
                 name: "car",
                 URL: "obr/car.png"
             },
-        
-        
+
+
             {
-               name: "karta",
+                name: "karta",
                 URL: "obr/karta.png"
             }
         ]
     );
     let karta1;
-    
-    $.getJSON("obr/card.json", data => {
-        karta1 = new Game.Card(
-            hra.game,
+    setTimeout(() => {
+        hra.load(
             [
                 {
-                    type: "hero",
-                    sprite: {
-                        name: "car",
-                        anchor: [1, 1]
-                    }
+                    name: "car",
+                    URL: "obr/car.png"
+                },
+
+
+                {
+                    name: "karta",
+                    URL: "obr/karta.png"
                 }
-            ],
-            data,
-            100,
-            100,
-            data.width,
-            data.height
-        );
-    });
+            ], function () {
+                $.getJSON("obr/card.json", data => {
+                    karta1 = new Game.Card(
+                        hra.game,
+                        [
+                            {
+                                type: "hero",
+                                sprite: {
+                                    name: "car",
+                                    anchor: [0.5, 0.5]
+                                }
+                            },
+                            {
+                                type: "text",
+                                sprite: "jméno: autíčko síla: 5",
+                                style: {
+                                    font: "30px Arial",
+                                    fill: "white"
+                                }
+                            }
+
+                        ],
+                        data,
+                        100,
+                        25,
+                        data.width,
+                        data.height
+                    );
+                });
+            });
+    }, 200);
+
+
 };

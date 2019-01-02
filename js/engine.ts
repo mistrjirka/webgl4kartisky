@@ -114,17 +114,17 @@ class KartiskyGL {
     public sprites: Array<{
         sprite: Phaser.Sprite;
         id: string;
-    }> = [];
+    }>
 
     public maps: Array<{
         map: IGraphicMap;
         id: string;
-    }> = [];
+    }>
 
     public images: Array<{
         image: Phaser.Image;
         id: string;
-    }> = [];
+    }> 
 
     constructor(
         div: string,
@@ -134,14 +134,14 @@ class KartiskyGL {
         width = 1280,
         height = 720
     ) {
-        this.load.bind(this);
+        //this.load.bind(this);
+        this.spriteLoading = spriteLoading;
+        this.toCreate = toCreate;
 
         var settingsForPhaser = {
             preload: this.preload.bind(this),
             create: this.create.bind(this),
             render: this.render.bind(this),
-            spriteLoading: spriteLoading,
-            toCreate: toCreate
         };
         switch (rendering) {
             case "auto":
@@ -177,6 +177,7 @@ class KartiskyGL {
     private render() {}
     private preload() {
         var phaser = this;
+        console.log(this.spriteLoading);
         this.spriteLoading.forEach(function(element) {
             phaser.game.load.image(element.name, element.URL);
         });
@@ -212,19 +213,23 @@ class KartiskyGL {
     }
 
     public load(sprites: ISprite_loading, callback: Function) {
-        console.log(this);
+        console.log(this.game);
         var loader = new Phaser.Loader(this.game);
-
+        console.log("ahoj");
         function afterLoad() {
+            console.log("ahoj2");
+
             loader.start();
             loader.onLoadComplete.add(function() {
                 callback(true);
             });
+            console.log("ahoj3");
         }
 
         sprites.forEach(function(element) {
             switch (element.type) {
                 case "image":
+                    console.log("sdas")
                     loader.image(element.name, element.URL);
                     afterLoad();
                     break;
@@ -237,10 +242,11 @@ class KartiskyGL {
                     afterLoad();
                     break;
                 case "audio":
-                    loader.text(element.name, element.URL);
+                    loader.audio(element.name, element.URL);
                     afterLoad();
                     break;
                 case undefined:
+                    console.log("sda");
                     loader.image(element.name, element.URL);
                     afterLoad();
                     break;

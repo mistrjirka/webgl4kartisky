@@ -22,16 +22,13 @@ var KartiskyGL = /** @class */ (function () {
         this.spriteLoading = [];
         this.toCreate = [];
         this.mapIndex = [];
-        this.sprites = [];
-        this.maps = [];
-        this.images = [];
-        this.load.bind(this);
+        //this.load.bind(this);
+        this.spriteLoading = spriteLoading;
+        this.toCreate = toCreate;
         var settingsForPhaser = {
             preload: this.preload.bind(this),
             create: this.create.bind(this),
-            render: this.render.bind(this),
-            spriteLoading: spriteLoading,
-            toCreate: toCreate
+            render: this.render.bind(this)
         };
         switch (rendering) {
             case "auto":
@@ -48,6 +45,7 @@ var KartiskyGL = /** @class */ (function () {
     KartiskyGL.prototype.render = function () { };
     KartiskyGL.prototype.preload = function () {
         var phaser = this;
+        console.log(this.spriteLoading);
         this.spriteLoading.forEach(function (element) {
             phaser.game.load.image(element.name, element.URL);
         });
@@ -71,17 +69,21 @@ var KartiskyGL = /** @class */ (function () {
         });
     };
     KartiskyGL.prototype.load = function (sprites, callback) {
-        console.log(this);
+        console.log(this.game);
         var loader = new Phaser.Loader(this.game);
+        console.log("ahoj");
         function afterLoad() {
+            console.log("ahoj2");
             loader.start();
             loader.onLoadComplete.add(function () {
                 callback(true);
             });
+            console.log("ahoj3");
         }
         sprites.forEach(function (element) {
             switch (element.type) {
                 case "image":
+                    console.log("sdas");
                     loader.image(element.name, element.URL);
                     afterLoad();
                     break;
@@ -94,10 +96,11 @@ var KartiskyGL = /** @class */ (function () {
                     afterLoad();
                     break;
                 case "audio":
-                    loader.text(element.name, element.URL);
+                    loader.audio(element.name, element.URL);
                     afterLoad();
                     break;
                 case undefined:
+                    console.log("sda");
                     loader.image(element.name, element.URL);
                     afterLoad();
                     break;

@@ -30,7 +30,7 @@ var Game = /** @class */ (function (_super) {
             var toCreate = [
                 {
                     name: cardConfig.name,
-                    anchor: [1, 1],
+                    anchor: [0.5, 0.5],
                     x: x,
                     y: y,
                     scale: {
@@ -44,31 +44,40 @@ var Game = /** @class */ (function (_super) {
                     case "hero": {
                         if (element.sprite instanceof Phaser.Sprite) {
                             _this.hero = element.sprite;
+                            _this.hero.x = cardConfig.hero.x;
+                            _this.hero.y = cardConfig.hero.y;
+                            _this.hero.width = cardConfig.hero.width;
+                            _this.hero.height = cardConfig.hero.height;
                         }
                         else if (element.sprite instanceof Object &&
                             !(element.sprite instanceof Array) &&
                             typeof element.sprite !== "string") {
                             heroTmp = element.sprite;
+                            heroTmp.x = cardConfig.hero.x;
+                            heroTmp.y = cardConfig.hero.y;
+                            heroTmp.scale = { height: cardConfig.hero.height, width: cardConfig.hero.width };
                         }
                         break;
                     }
                     case "text": {
+                        element.style.wordWrapWidth = cardConfig.text.width;
+                        element.style.wordWrap = true;
                         if (element.sprite instanceof Phaser.Text) {
                             _this.text = element.sprite;
-                            _this.text.x = x + cardConfig.text.x;
-                            _this.text.y = y + cardConfig.text.y;
+                            _this.text.x = cardConfig.text.x;
+                            _this.text.y = cardConfig.text.y;
                         }
                         else if (typeof element.sprite === "string" ||
                             Array.isArray(element.sprite)) {
                             if (typeof element.sprite === "string") {
-                                _this.text = game.add.text(x + cardConfig.text.x + x, cardConfig.text.y + y, element.sprite, element.style);
+                                _this.text = game.add.text(cardConfig.text.x, cardConfig.text.y, element.sprite, element.style);
                             }
                             else if (Array.isArray(element.sprite)) {
-                                _this.text = game.add.text(x + cardConfig.text.x + x, cardConfig.text.y + y, "", element.style);
+                                _this.text = game.add.text(x + cardConfig.text.x, cardConfig.text.y, "", element.style);
                                 _this.text.parseList(element.sprite);
                             }
-                            _this.text.x = x + cardConfig.text.x;
-                            _this.text.y = y + cardConfig.text.y;
+                            _this.text.x = cardConfig.text.x;
+                            _this.text.y = cardConfig.text.y;
                         }
                         break;
                     }
@@ -83,7 +92,8 @@ var Game = /** @class */ (function (_super) {
             tmpRaw.shift();
             _this.other = tmpRaw;
             _this.hero = _this.createSprite([heroTmp])[0];
-            _this.card.addChild(_this.text);
+            if (_this.text !== undefined)
+                _this.card.addChild(_this.text);
             _this.card.addChild(_this.hero);
             return _this;
         }
@@ -103,15 +113,36 @@ window.onload = function () {
         }
     ]);
     var karta1;
-    $.getJSON("obr/card.json", function (data) {
-        karta1 = new Game.Card(hra.game, [
+    setTimeout(function () {
+        hra.load([
             {
-                type: "hero",
-                sprite: {
-                    name: "car",
-                    anchor: [1, 1]
-                }
+                name: "car",
+                URL: "obr/car.png"
+            },
+            {
+                name: "karta",
+                URL: "obr/karta.png"
             }
-        ], data, 100, 100, data.width, data.height);
-    });
+        ], function () {
+            $.getJSON("obr/card.json", function (data) {
+                karta1 = new Game.Card(hra.game, [
+                    {
+                        type: "hero",
+                        sprite: {
+                            name: "car",
+                            anchor: [0.5, 0.5]
+                        }
+                    },
+                    {
+                        type: "text",
+                        sprite: "jméno: autíčko síla: 5",
+                        style: {
+                            font: "30px Arial",
+                            fill: "white"
+                        }
+                    }
+                ], data, 100, 25, data.width, data.height);
+            });
+        });
+    }, 200);
 };
