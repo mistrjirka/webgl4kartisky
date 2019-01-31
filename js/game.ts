@@ -65,6 +65,7 @@ namespace Kartisky {
         public other: (Phaser.Sprite | Phaser.Text | Phaser.Image)[];
         public statistics: IStatistics;
         public map: KartiskyGL.Map;
+        public arrow: string;
 
         constructor(
             game: Phaser.Game,
@@ -74,7 +75,8 @@ namespace Kartisky {
             y: number,
             width: number,
             height: number,
-            map?: KartiskyGL.Map
+            map?: KartiskyGL.Map,
+            arrow?: string
         ) {
             super(game);
             let heroTmp: SpriteToCreate;
@@ -96,7 +98,6 @@ namespace Kartisky {
                 switch (element.type) {
                     case "hero": {
                         if (element.sprite instanceof Phaser.Sprite) {
-                            alert("ss");
                             this.hero = element.sprite;
                             this.hero.x = cardConfig.hero.x;
                             this.hero.y = cardConfig.hero.y;
@@ -146,6 +147,7 @@ namespace Kartisky {
                         }
                         break;
                     }
+
                     case "otherSprite": {
                         toCreate.push(element.sprite);
                         break;
@@ -173,14 +175,83 @@ namespace Kartisky {
             if(map !== undefined)
                 this.map = map;
 
+            if(arrow !== undefined)
+                this.arrow = arrow;
+
+        }
+
+        public addCredentials(arrow?: string, map?: KartiskyGL.Map){
+            if (arrow !== undefined)
+                this.arrow = arrow;
+            
+            if (map !== undefined)
+                this.map = map;
         }
 
         public move() {
+            if(this.map === undefined || this.arrow === undefined){
+                console.error("map or arrow is not defined. You can't use this method, until you will define them.")
+                return false;
+            }
+
 
         }
 
         public attack() {
+            if(this.map === undefined || this.arrow === undefined){
+                console.error("map or arrow is not defined. You can't use this method, until you will define them.")
+                return false;
+            }
 
+
+        }
+
+        private getMySurrounding(position: number[]){
+            var lu, mu, ru, l, r, ld, md, rd, tmp: number[];
+
+            if (position[0] !== 0 && position[1] !== 0) {
+                if (this.map.map.map[position[0] - 1][position[1] - 1].empty === true) //this.map.map.map it is shit XD; I wanna die. 
+                    lu = [position[0] - 1, position[1] - 1];
+            }
+            if (position[0] !== 0) {
+                if (this.map.map.map[position[0] - 1][position[1]].empty === true)
+                    mu = [position[0] - 1, position[1]];
+            }
+            if (position[0] !== 0 && position[1] !== this.map.map.map[0].length - 1) {
+                if (this.map.map.map[position[0] - 1, position[1] + 1])
+                    ru = [position[0] - 1, position[1] + 1];
+            }
+            if (position[1] !== 0) {
+                if (this.map.map.map[position[0]][position[1] - 1].empty === true)
+                    l = [position[0], position[1] - 1];
+            }
+            if (position[1] !== this.map.map.map[0].length - 1) {
+                if (this.map.map.map[position[0]][position[1] + 1].empty === true)
+                    r = [position[0], position[1] + 1];
+            }
+            if (position[0] !== this.map.map.map.length - 1 && position[1] !== 0) {
+                if (this.map.map.map[position[0] + 1][position[1] - 1].empty === true)
+                    ld = [position[0] + 1, position[1] - 1];
+            }
+            if (position[0] !== this.map.map.map.length - 1) {
+                if (this.map.map.map[position[0] + 1][position[1]].empty === true)
+                    md = [position[0] + 1, position[1]];
+            }
+            if (position[0] !== this.map.map.map.length - 1 && position[1] !== this.map.map.map[0].length - 1) {
+                if (this.map.map.map[position[0] + 1][position[1] + 1].empty === true)
+                    rd = [position[0] + 1, position[1] + 1];
+            }
+
+            return {
+                lu: lu,
+                mu: mu,
+                ru: ru,
+                l: l,
+                r: r,
+                ld: ld,
+                rd: rd,
+                md: md
+            }
         }
     }
 }
@@ -207,7 +278,7 @@ window.onload = () => {
         hra.load(
             [
                 {
-                    name: "car",
+                    name: "cars",
                     URL: "obr/car.png"
                 },
 
