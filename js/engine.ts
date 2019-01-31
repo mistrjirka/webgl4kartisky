@@ -2,6 +2,7 @@
 //ahoj
 //references
 /// <reference path = "lib/phaser.d.ts" />
+/// <reference path = "game.ts" />
 
 type LoadingForm = {
     URL: string;
@@ -47,13 +48,13 @@ type PhaserText = {
     };
 };
 
-interface ISprite_loading extends Array<LoadingForm> {}
+interface ISprite_loading extends Array<LoadingForm> { }
 
 interface ISpriteForMap extends SpriteToCreate {
     typeOfScale?: "automatic" | "manual";
 }
 
-interface ISprite_create extends Array<SpriteToCreate> {}
+interface ISprite_create extends Array<SpriteToCreate> { }
 
 interface IGraphicMap {
     map: Array<Array<{ sprite: Phaser.Sprite | undefined; empty: boolean }>>;
@@ -100,161 +101,162 @@ interface IMap_for_rendering {
     id: string;
 }
 
-interface IImage extends Array<Image> {}
+interface IImage extends Array<Image> { }
+namespace KartiskyGL {
+    export class Game {
+        public game: Phaser.Game;
 
-class KartiskyGL {
-    public game: Phaser.Game;
+        public spriteLoading: ISprite_loading = [];
 
-    public spriteLoading: ISprite_loading = [];
+        public toCreate: ISprite_create = [];
 
-    public toCreate: ISprite_create = [];
+        public mapIndex: Array<IMap_for_rendering> = [];
 
-    public mapIndex: Array<IMap_for_rendering> = [];
+        public sprites: Array<{
+            sprite: Phaser.Sprite;
+            id: string;
+        }>
 
-    public sprites: Array<{
-        sprite: Phaser.Sprite;
-        id: string;
-    }>
+        public maps: Array<{
+            map: IGraphicMap;
+            id: string;
+        }>
 
-    public maps: Array<{
-        map: IGraphicMap;
-        id: string;
-    }>
+        public images: Array<{
+            image: Phaser.Image;
+            id: string;
+        }>
 
-    public images: Array<{
-        image: Phaser.Image;
-        id: string;
-    }> 
+        constructor(
+            div: string,
+            rendering: string,
+            spriteLoading: ISprite_loading,
+            toCreate: ISprite_create,
+            width = 1280,
+            height = 720
+        ) {
+            //this.load.bind(this);
+            this.spriteLoading = spriteLoading;
+            this.toCreate = toCreate;
 
-    constructor(
-        div: string,
-        rendering: string,
-        spriteLoading: ISprite_loading,
-        toCreate: ISprite_create,
-        width = 1280,
-        height = 720
-    ) {
-        //this.load.bind(this);
-        this.spriteLoading = spriteLoading;
-        this.toCreate = toCreate;
-
-        var settingsForPhaser = {
-            preload: this.preload.bind(this),
-            create: this.create.bind(this),
-            render: this.render.bind(this),
-        };
-        switch (rendering) {
-            case "auto":
-                this.game = new Phaser.Game(
-                    width,
-                    height,
-                    Phaser.AUTO,
-                    div,
-                    settingsForPhaser
-                );
-                break;
-            case "webgl":
-                this.game = new Phaser.Game(
-                    width,
-                    height,
-                    Phaser.WEBGL,
-                    div,
-                    settingsForPhaser
-                );
-                break;
-            case "canvas":
-                this.game = new Phaser.Game(
-                    width,
-                    height,
-                    Phaser.CANVAS,
-                    div,
-                    settingsForPhaser
-                );
-                break;
-        }
-    }
-
-    private render() {}
-    private preload() {
-        var phaser = this;
-        console.log(this.spriteLoading);
-        this.spriteLoading.forEach(function(element) {
-            phaser.game.load.image(element.name, element.URL);
-        });
-    }
-
-    private create() {
-        var phaser = this;
-        this.toCreate.forEach(function(element) {
-            if (element.x && element.y) {
-                phaser.sprites.push({
-                    sprite: phaser.game.add.sprite(
-                        element.x,
-                        element.y,
-                        element.name
-                    ),
-                    id: this.toCreate.id
-                });
-            } else {
-                phaser.sprites.push({
-                    sprite: phaser.game.add.sprite(
-                        phaser.game.world.centerX,
-                        phaser.game.world.centerY,
-                        element.name
-                    ),
-                    id: this.toCreate.id
-                });
+            var settingsForPhaser = {
+                preload: this.preload.bind(this),
+                create: this.create.bind(this),
+                render: this.render.bind(this),
+            };
+            switch (rendering) {
+                case "auto":
+                    this.game = new Phaser.Game(
+                        width,
+                        height,
+                        Phaser.AUTO,
+                        div,
+                        settingsForPhaser
+                    );
+                    break;
+                case "webgl":
+                    this.game = new Phaser.Game(
+                        width,
+                        height,
+                        Phaser.WEBGL,
+                        div,
+                        settingsForPhaser
+                    );
+                    break;
+                case "canvas":
+                    this.game = new Phaser.Game(
+                        width,
+                        height,
+                        Phaser.CANVAS,
+                        div,
+                        settingsForPhaser
+                    );
+                    break;
             }
-            this.sprites[this.sprites.length].anchor.setTo(
-                element[0],
-                element[1]
-            );
-        });
-    }
+        }
 
-    public load(sprites: ISprite_loading, callback: Function) {
-        console.log(this.game);
-        var loader = new Phaser.Loader(this.game);
-        console.log("ahoj");
-        function afterLoad() {
-            console.log("ahoj2");
-
-            loader.start();
-            loader.onLoadComplete.add(function() {
-                callback(true);
+        private render() { }
+        private preload() {
+            var phaser = this;
+            console.log(this.spriteLoading);
+            this.spriteLoading.forEach(function (element) {
+                phaser.game.load.image(element.name, element.URL);
             });
-            console.log("ahoj3");
         }
 
-        sprites.forEach(function(element) {
-            switch (element.type) {
-                case "image":
-                    console.log("sdas")
-                    loader.image(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case "text":
-                    loader.text(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case "tilemap":
-                    loader.tilemap(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case "audio":
-                    loader.audio(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case undefined:
-                    console.log("sda");
-                    loader.image(element.name, element.URL);
-                    afterLoad();
-                    break;
+        private create() {
+            var phaser = this;
+            this.toCreate.forEach(function (element) {
+                if (element.x && element.y) {
+                    phaser.sprites.push({
+                        sprite: phaser.game.add.sprite(
+                            element.x,
+                            element.y,
+                            element.name
+                        ),
+                        id: this.toCreate.id
+                    });
+                } else {
+                    phaser.sprites.push({
+                        sprite: phaser.game.add.sprite(
+                            phaser.game.world.centerX,
+                            phaser.game.world.centerY,
+                            element.name
+                        ),
+                        id: this.toCreate.id
+                    });
+                }
+                this.sprites[this.sprites.length].anchor.setTo(
+                    element[0],
+                    element[1]
+                );
+            });
+        }
+
+        public load(sprites: ISprite_loading, callback: Function) {
+            console.log(this.game);
+            var loader = new Phaser.Loader(this.game);
+            console.log("ahoj");
+            function afterLoad() {
+                console.log("ahoj2");
+
+                loader.start();
+                loader.onLoadComplete.add(function () {
+                    callback(true);
+                });
+                console.log("ahoj3");
             }
-        });
+
+            sprites.forEach(function (element) {
+                switch (element.type) {
+                    case "image":
+                        console.log("sdas")
+                        loader.image(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case "text":
+                        loader.text(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case "tilemap":
+                        loader.tilemap(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case "audio":
+                        loader.audio(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case undefined:
+                        console.log("sda");
+                        loader.image(element.name, element.URL);
+                        afterLoad();
+                        break;
+                }
+            });
+        }
     }
 
-    static Render = class {
+    export class Render {
         game: Phaser.Game;
 
         constructor(game: Phaser.Game) {
@@ -266,7 +268,7 @@ class KartiskyGL {
 
             var value: Array<Phaser.Sprite> = [];
 
-            sprites.forEach(function(element, index) {
+            sprites.forEach(function (element, index) {
                 if (
                     typeof element.x === "number" &&
                     typeof element.y === "number"
@@ -298,14 +300,14 @@ class KartiskyGL {
             return value;
         }
 
-        public createText() {}
+        public createText() { }
 
         public createImage(image: IImage) {
             var game = this;
 
             var value: Array<Phaser.Image> = [];
 
-            image.forEach(function(element, index) {
+            image.forEach(function (element, index) {
                 if (
                     typeof element.x === "number" &&
                     typeof element.y === "number"
@@ -369,7 +371,7 @@ class KartiskyGL {
         }
     };
 
-    static Map = class extends KartiskyGL.Render {
+    export class Map extends KartiskyGL.Render {
         map: {
             map: { sprite: undefined | Phaser.Sprite; empty: boolean }[][];
             x: number;
@@ -392,7 +394,7 @@ class KartiskyGL {
                 sprite: undefined | Phaser.Sprite;
                 empty: boolean;
             }[][] = [];
-            map.map.forEach(function(elementx, index) {
+            map.map.forEach(function (elementx, index) {
                 tmpMap[index] = [];
                 elementx.forEach((elementy, indey) => {
                     tmpMap[index].push({ sprite: undefined, empty: true });
@@ -426,9 +428,9 @@ class KartiskyGL {
                             configOfSprite[0].scale.height = map.y_size;
                         } else if (
                             map.map[x][y].card.sprite.typeOfScale ===
-                                "manual" &&
+                            "manual" &&
                             typeof map.map[x][y].card.sprite.scale !==
-                                "undefined"
+                            "undefined"
                         ) {
                             configOfSprite[0].scale = {
                                 width: 0,
@@ -458,7 +460,7 @@ class KartiskyGL {
 
         public removeFromMap(coordinates: { x: number; y: number }[]) {
             var map = this.map.map;
-            coordinates.forEach(function(element) {
+            coordinates.forEach(function (element) {
                 if (!map[element.x][element.y].empty) {
                     map[element.x][element.y].sprite.destroy();
                     map[element.x][element.y].empty = true;
@@ -512,7 +514,7 @@ class KartiskyGL {
         }
     };
 
-    static Cardbox = class extends KartiskyGL.Render {
+    class Cardbox extends KartiskyGL.Render {
         width: number;
         height: number;
 
@@ -610,6 +612,6 @@ class KartiskyGL {
             }
         }
 
-        private stacking() {}
+        private stacking() { }
     };
 }

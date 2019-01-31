@@ -36,22 +36,35 @@ interface ICardAssemblerPartsUnknown {
     sprite: SpriteToCreate;
 }
 
-class Game extends KartiskyGL {
-    constructor(
-        div: string,
-        typeOfRender: "auto" | "webgl" | "canvas",
-        toLoad: ISprite_loading = [],
-        toCreate: ISprite_create = [],
-        resolution: { x: number; y: number } = { x: 1280, y: 720 }
-    ) {
-        super(div, typeOfRender, toLoad, toCreate, resolution.x, resolution.y);
+interface IStatistics {
+    health: number,
+    attack: number,
+    cost: number,
+    class: string,
+    range: number,
+    attackPattern: number[][]
+}
+
+namespace Kartisky {
+    export class Game extends KartiskyGL.Game {
+        constructor(
+            div: string,
+            typeOfRender: "auto" | "webgl" | "canvas",
+            toLoad: ISprite_loading = [],
+            toCreate: ISprite_create = [],
+            resolution: { x: number; y: number } = { x: 1280, y: 720 }
+        ) {
+            super(div, typeOfRender, toLoad, toCreate, resolution.x, resolution.y);
+        }
     }
 
-    static Card = class extends KartiskyGL.Render {
+    export class Card extends KartiskyGL.Render {
         public card: Phaser.Sprite;
         public hero: Phaser.Sprite;
         public text: Phaser.Text;
         public other: (Phaser.Sprite | Phaser.Text | Phaser.Image)[];
+        public statistics: IStatistics;
+        public map: KartiskyGL.Map;
 
         constructor(
             game: Phaser.Game,
@@ -60,7 +73,8 @@ class Game extends KartiskyGL {
             x: number,
             y: number,
             width: number,
-            height: number
+            height: number,
+            map?: KartiskyGL.Map
         ) {
             super(game);
             let heroTmp: SpriteToCreate;
@@ -82,6 +96,7 @@ class Game extends KartiskyGL {
                 switch (element.type) {
                     case "hero": {
                         if (element.sprite instanceof Phaser.Sprite) {
+                            alert("ss");
                             this.hero = element.sprite;
                             this.hero.x = cardConfig.hero.x;
                             this.hero.y = cardConfig.hero.y;
@@ -141,18 +156,37 @@ class Game extends KartiskyGL {
             let tmpRaw: Phaser.Sprite[] = this.createSprite(toCreate);
             this.card = tmpRaw[0];
             tmpRaw.shift();
-            this.other = tmpRaw;
-            this.hero = this.createSprite([heroTmp])[0];
+
+            if (heroTmp !== undefined)
+                this.hero = this.createSprite([heroTmp])[0];
+
+            tmpRaw.shift();
+
             if (this.text !== undefined)
                 this.card.addChild(this.text);
-            this.card.addChild(this.hero);
+
+            if (this.hero !== undefined)
+                this.card.addChild(this.hero);
+
+            this.other = tmpRaw;
+
+            if(map !== undefined)
+                this.map = map;
 
         }
-    };
+
+        public move() {
+
+        }
+
+        public attack() {
+
+        }
+    }
 }
 
 window.onload = () => {
-    let hra = new Game(
+    let hra = new Kartisky.Game(
         "game",
         "auto",
         [
@@ -184,7 +218,8 @@ window.onload = () => {
                 }
             ], function () {
                 $.getJSON("obr/card.json", data => {
-                    karta1 = new Game.Card(
+                    //let mapa = new KartiskyGL.Map(hra, {});
+                    karta1 = new Kartisky.Card(
                         hra.game,
                         [
                             {

@@ -14,17 +14,24 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var Game = /** @class */ (function (_super) {
-    __extends(Game, _super);
-    function Game(div, typeOfRender, toLoad, toCreate, resolution) {
-        if (toLoad === void 0) { toLoad = []; }
-        if (toCreate === void 0) { toCreate = []; }
-        if (resolution === void 0) { resolution = { x: 1280, y: 720 }; }
-        return _super.call(this, div, typeOfRender, toLoad, toCreate, resolution.x, resolution.y) || this;
-    }
-    Game.Card = /** @class */ (function (_super) {
-        __extends(class_1, _super);
-        function class_1(game, parts, cardConfig, x, y, width, height) {
+var Kartisky;
+(function (Kartisky) {
+    var Game = /** @class */ (function (_super) {
+        __extends(Game, _super);
+        function Game(div, typeOfRender, toLoad, toCreate, resolution) {
+            if (toLoad === void 0) { toLoad = []; }
+            if (toCreate === void 0) { toCreate = []; }
+            if (resolution === void 0) { resolution = { x: 1280, y: 720 }; }
+            return _super.call(this, div, typeOfRender, toLoad, toCreate, resolution.x, resolution.y) || this;
+        }
+        return Game;
+    }(KartiskyGL.Game));
+    Kartisky.Game = Game;
+    var Card = /** @class */ (function (_super) {
+        __extends(Card, _super);
+        function Card(game, parts, cardConfig, 
+        //map: KartiskyGL.Map,
+        x, y, width, height) {
             var _this = _super.call(this, game) || this;
             var heroTmp;
             var toCreate = [
@@ -43,6 +50,7 @@ var Game = /** @class */ (function (_super) {
                 switch (element.type) {
                     case "hero": {
                         if (element.sprite instanceof Phaser.Sprite) {
+                            alert("ss");
                             _this.hero = element.sprite;
                             _this.hero.x = cardConfig.hero.x;
                             _this.hero.y = cardConfig.hero.y;
@@ -90,19 +98,26 @@ var Game = /** @class */ (function (_super) {
             var tmpRaw = _this.createSprite(toCreate);
             _this.card = tmpRaw[0];
             tmpRaw.shift();
-            _this.other = tmpRaw;
-            _this.hero = _this.createSprite([heroTmp])[0];
+            if (heroTmp !== undefined)
+                _this.hero = _this.createSprite([heroTmp])[0];
+            tmpRaw.shift();
             if (_this.text !== undefined)
                 _this.card.addChild(_this.text);
-            _this.card.addChild(_this.hero);
+            if (_this.hero !== undefined)
+                _this.card.addChild(_this.hero);
+            _this.other = tmpRaw;
             return _this;
         }
-        return class_1;
+        Card.prototype.move = function () {
+        };
+        Card.prototype.attack = function () {
+        };
+        return Card;
     }(KartiskyGL.Render));
-    return Game;
-}(KartiskyGL));
+    Kartisky.Card = Card;
+})(Kartisky || (Kartisky = {}));
 window.onload = function () {
-    var hra = new Game("game", "auto", [
+    var hra = new Kartisky.Game("game", "auto", [
         {
             name: "car",
             URL: "obr/car.png"
@@ -125,7 +140,8 @@ window.onload = function () {
             }
         ], function () {
             $.getJSON("obr/card.json", function (data) {
-                karta1 = new Game.Card(hra.game, [
+                //let mapa = new KartiskyGL.Map(hra, {});
+                karta1 = new Kartisky.Card(hra.game, [
                     {
                         type: "hero",
                         sprite: {

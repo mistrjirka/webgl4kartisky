@@ -2,6 +2,7 @@
 //ahoj
 //references
 /// <reference path = "lib/phaser.d.ts" />
+/// <reference path = "game.ts" />
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -15,103 +16,108 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var KartiskyGL = /** @class */ (function () {
-    function KartiskyGL(div, rendering, spriteLoading, toCreate, width, height) {
-        if (width === void 0) { width = 1280; }
-        if (height === void 0) { height = 720; }
-        this.spriteLoading = [];
-        this.toCreate = [];
-        this.mapIndex = [];
-        //this.load.bind(this);
-        this.spriteLoading = spriteLoading;
-        this.toCreate = toCreate;
-        var settingsForPhaser = {
-            preload: this.preload.bind(this),
-            create: this.create.bind(this),
-            render: this.render.bind(this)
-        };
-        switch (rendering) {
-            case "auto":
-                this.game = new Phaser.Game(width, height, Phaser.AUTO, div, settingsForPhaser);
-                break;
-            case "webgl":
-                this.game = new Phaser.Game(width, height, Phaser.WEBGL, div, settingsForPhaser);
-                break;
-            case "canvas":
-                this.game = new Phaser.Game(width, height, Phaser.CANVAS, div, settingsForPhaser);
-                break;
+var KartiskyGL;
+(function (KartiskyGL) {
+    var Game = /** @class */ (function () {
+        function Game(div, rendering, spriteLoading, toCreate, width, height) {
+            if (width === void 0) { width = 1280; }
+            if (height === void 0) { height = 720; }
+            this.spriteLoading = [];
+            this.toCreate = [];
+            this.mapIndex = [];
+            //this.load.bind(this);
+            this.spriteLoading = spriteLoading;
+            this.toCreate = toCreate;
+            var settingsForPhaser = {
+                preload: this.preload.bind(this),
+                create: this.create.bind(this),
+                render: this.render.bind(this)
+            };
+            switch (rendering) {
+                case "auto":
+                    this.game = new Phaser.Game(width, height, Phaser.AUTO, div, settingsForPhaser);
+                    break;
+                case "webgl":
+                    this.game = new Phaser.Game(width, height, Phaser.WEBGL, div, settingsForPhaser);
+                    break;
+                case "canvas":
+                    this.game = new Phaser.Game(width, height, Phaser.CANVAS, div, settingsForPhaser);
+                    break;
+            }
         }
-    }
-    KartiskyGL.prototype.render = function () { };
-    KartiskyGL.prototype.preload = function () {
-        var phaser = this;
-        console.log(this.spriteLoading);
-        this.spriteLoading.forEach(function (element) {
-            phaser.game.load.image(element.name, element.URL);
-        });
-    };
-    KartiskyGL.prototype.create = function () {
-        var phaser = this;
-        this.toCreate.forEach(function (element) {
-            if (element.x && element.y) {
-                phaser.sprites.push({
-                    sprite: phaser.game.add.sprite(element.x, element.y, element.name),
-                    id: this.toCreate.id
-                });
-            }
-            else {
-                phaser.sprites.push({
-                    sprite: phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name),
-                    id: this.toCreate.id
-                });
-            }
-            this.sprites[this.sprites.length].anchor.setTo(element[0], element[1]);
-        });
-    };
-    KartiskyGL.prototype.load = function (sprites, callback) {
-        console.log(this.game);
-        var loader = new Phaser.Loader(this.game);
-        console.log("ahoj");
-        function afterLoad() {
-            console.log("ahoj2");
-            loader.start();
-            loader.onLoadComplete.add(function () {
-                callback(true);
+        Game.prototype.render = function () { };
+        Game.prototype.preload = function () {
+            var phaser = this;
+            console.log(this.spriteLoading);
+            this.spriteLoading.forEach(function (element) {
+                phaser.game.load.image(element.name, element.URL);
             });
-            console.log("ahoj3");
-        }
-        sprites.forEach(function (element) {
-            switch (element.type) {
-                case "image":
-                    console.log("sdas");
-                    loader.image(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case "text":
-                    loader.text(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case "tilemap":
-                    loader.tilemap(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case "audio":
-                    loader.audio(element.name, element.URL);
-                    afterLoad();
-                    break;
-                case undefined:
-                    console.log("sda");
-                    loader.image(element.name, element.URL);
-                    afterLoad();
-                    break;
+        };
+        Game.prototype.create = function () {
+            var phaser = this;
+            this.toCreate.forEach(function (element) {
+                if (element.x && element.y) {
+                    phaser.sprites.push({
+                        sprite: phaser.game.add.sprite(element.x, element.y, element.name),
+                        id: this.toCreate.id
+                    });
+                }
+                else {
+                    phaser.sprites.push({
+                        sprite: phaser.game.add.sprite(phaser.game.world.centerX, phaser.game.world.centerY, element.name),
+                        id: this.toCreate.id
+                    });
+                }
+                this.sprites[this.sprites.length].anchor.setTo(element[0], element[1]);
+            });
+        };
+        Game.prototype.load = function (sprites, callback) {
+            console.log(this.game);
+            var loader = new Phaser.Loader(this.game);
+            console.log("ahoj");
+            function afterLoad() {
+                console.log("ahoj2");
+                loader.start();
+                loader.onLoadComplete.add(function () {
+                    callback(true);
+                });
+                console.log("ahoj3");
             }
-        });
-    };
-    KartiskyGL.Render = /** @class */ (function () {
-        function class_1(game) {
+            sprites.forEach(function (element) {
+                switch (element.type) {
+                    case "image":
+                        console.log("sdas");
+                        loader.image(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case "text":
+                        loader.text(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case "tilemap":
+                        loader.tilemap(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case "audio":
+                        loader.audio(element.name, element.URL);
+                        afterLoad();
+                        break;
+                    case undefined:
+                        console.log("sda");
+                        loader.image(element.name, element.URL);
+                        afterLoad();
+                        break;
+                }
+            });
+        };
+        return Game;
+    }());
+    KartiskyGL.Game = Game;
+    var Render = /** @class */ (function () {
+        function Render(game) {
             this.game = game;
         }
-        class_1.prototype.createSprite = function (sprites) {
+        Render.prototype.createSprite = function (sprites) {
             var phaser = this;
             var value = [];
             sprites.forEach(function (element, index) {
@@ -130,8 +136,8 @@ var KartiskyGL = /** @class */ (function () {
             });
             return value;
         };
-        class_1.prototype.createText = function () { };
-        class_1.prototype.createImage = function (image) {
+        Render.prototype.createText = function () { };
+        Render.prototype.createImage = function (image) {
             var game = this;
             var value = [];
             image.forEach(function (element, index) {
@@ -151,7 +157,7 @@ var KartiskyGL = /** @class */ (function () {
             });
             return value;
         };
-        class_1.prototype.renderBackground = function (background, scale) {
+        Render.prototype.renderBackground = function (background, scale) {
             var image;
             if (typeof scale != "undefined") {
                 image = this.createImage([
@@ -179,11 +185,13 @@ var KartiskyGL = /** @class */ (function () {
             }
             return image;
         };
-        return class_1;
+        return Render;
     }());
-    KartiskyGL.Map = /** @class */ (function (_super) {
-        __extends(class_2, _super);
-        function class_2(game, map) {
+    KartiskyGL.Render = Render;
+    ;
+    var Map = /** @class */ (function (_super) {
+        __extends(Map, _super);
+        function Map(game, map) {
             var _this = _super.call(this, game) || this;
             var background = _this.renderBackground(map.background, {
                 width: map.map.length * map.x_size,
@@ -247,7 +255,7 @@ var KartiskyGL = /** @class */ (function () {
             };
             return _this;
         }
-        class_2.prototype.removeFromMap = function (coordinates) {
+        Map.prototype.removeFromMap = function (coordinates) {
             var map = this.map.map;
             coordinates.forEach(function (element) {
                 if (!map[element.x][element.y].empty) {
@@ -256,7 +264,7 @@ var KartiskyGL = /** @class */ (function () {
                 }
             });
         };
-        class_2.prototype.addToMap = function (sprites) {
+        Map.prototype.addToMap = function (sprites) {
             var map;
             var toCreate = [];
             map = this.map;
@@ -290,11 +298,13 @@ var KartiskyGL = /** @class */ (function () {
             });
             this.createSprite(toCreate);
         };
-        return class_2;
+        return Map;
     }(KartiskyGL.Render));
-    KartiskyGL.Cardbox = /** @class */ (function (_super) {
-        __extends(class_3, _super);
-        function class_3(game, config) {
+    KartiskyGL.Map = Map;
+    ;
+    var Cardbox = /** @class */ (function (_super) {
+        __extends(Cardbox, _super);
+        function Cardbox(game, config) {
             var _this = _super.call(this, game) || this;
             _this.renderBackground(config.background, {
                 width: config.width,
@@ -309,14 +319,14 @@ var KartiskyGL = /** @class */ (function () {
             _this.overlapWidth = config.overlapWidth;
             return _this;
         }
-        class_3.prototype.make2DArray = function (d1, d2) {
+        Cardbox.prototype.make2DArray = function (d1, d2) {
             var arr = new Array(d1), i, l;
             for (i = 0, l = d2; i < l; i++) {
                 arr[i] = new Array(d1);
             }
             return arr;
         };
-        class_3.prototype.addToCardBox = function (card, position) {
+        Cardbox.prototype.addToCardBox = function (card, position) {
             var place;
             if (position === undefined) {
                 var done = false;
@@ -358,14 +368,14 @@ var KartiskyGL = /** @class */ (function () {
                 }
             }
         };
-        class_3.prototype.removeFromCardBox = function (position) {
+        Cardbox.prototype.removeFromCardBox = function (position) {
             if (typeof this.cards[position.x][position.y] !== "undefined") {
                 this.cards[position.x][position.y].destroy();
                 this.cards[position.x][position.y] = undefined;
             }
         };
-        class_3.prototype.stacking = function () { };
-        return class_3;
+        Cardbox.prototype.stacking = function () { };
+        return Cardbox;
     }(KartiskyGL.Render));
-    return KartiskyGL;
-}());
+    ;
+})(KartiskyGL || (KartiskyGL = {}));
